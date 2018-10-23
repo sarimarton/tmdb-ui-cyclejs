@@ -6,9 +6,10 @@ import { routerify } from 'cyclic-router';
 import { makeHistoryDriver } from '@cycle/history';
 import switchPath from 'switch-path';
 
-import { HomeComponent } from './home/home.js';
-import { ItemComponent } from './item/item.js';
 import css from './index.css';
+
+import { HomeComponent } from './view/home/Home.js';
+import { ItemComponent } from './view/item/Item.js';
 
 function main(sources) {
   const homePageClick$ = sources.DOM.select('.home').events('click');
