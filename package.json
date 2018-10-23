@@ -36,7 +36,9 @@
   "dependencies": {
     "@cycle/dom": "^22.0.0",
     "@cycle/history": "^7.0.0",
+    "@cycle/http": "^15.0.0",
     "@cycle/run": "^5.1.0",
+    "@cycle/time": "^0.16.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "cyclic-router": "^5.1.7",
     "snabbdom-pragma": "^2.7.0",
