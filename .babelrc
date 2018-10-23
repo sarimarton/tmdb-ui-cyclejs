@@ -1,0 +1,17 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "chrome": "58"
+        },
+        "useBuiltIns": "entry"
+      }
+    ]
+  ],
+  "plugins": [
+    "syntax-jsx",
+    ["transform-react-jsx", {"pragma": "Snabbdom.createElement"}]
+  ]
+}
