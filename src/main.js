@@ -26,7 +26,7 @@ import UIkitCss from '../node_modules/uikit/dist/css/uikit.min.css';
 import css from './main.css';
 
 // Main views
-import { HomeComponent } from './view/home/Home.js';
+import { HomePage } from './view/home/HomePage.js';
 import { MovieDetailsPage } from './view/details/MovieDetailsPage.js';
 
 function main(sources) {
@@ -41,7 +41,7 @@ function main(sources) {
   const viewEntries = [
     ['/', {
       name: 'home',
-      cmp: HomeComponent
+      cmp: HomePage
     }],
     ['/item/:id', id => ({
       name: 'item',
@@ -88,14 +88,14 @@ function main(sources) {
 
   const views$ =
     match$.map(({ path, value: pageCfg }) => {
-      // It's a bit hacky...
+      // It's a bit hacky to get the routerified component
       const _MovieDetailsPage = pageCfg.name === 'item'
         ? pageCfg.cmp
         : MovieDetailsPage;
 
       // Combine all the views to allow smooth transition
       return xs.combine(
-        HomeComponent(sources).DOM.map(vdom =>
+        HomePage(sources).DOM.map(vdom =>
           viewTemplate('home', vdom, pageCfg.name === 'home')
         ),
         _MovieDetailsPage(sources).DOM.map(vdom =>

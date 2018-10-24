@@ -3,7 +3,7 @@ import Snabbdom from 'snabbdom-pragma';
 
 import { ResultsContainer } from './ResultsContainer.js';
 
-export function HomeComponent(sources) {
+export function HomePage(sources) {
   const searchPhrase$ =
     sources.DOM
       .select('.search-phrase-input')
