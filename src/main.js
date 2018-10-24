@@ -34,10 +34,6 @@ function main(sources) {
     .select('.home')
     .events('click');
 
-  const searchResultItemClick$ = sources.DOM
-    .select('.result-item')
-    .events('click');
-
   const viewEntries = [
     ['/', {
       name: 'home',
@@ -124,8 +120,9 @@ function main(sources) {
       xs.merge(
         homePageClick$
           .mapTo('/'),
-        searchResultItemClick$
-          .map(event => `/item/${event.target.dataset.id}`)
+        activePage$
+          .map(page => page.router)
+          .flatten()
       )
   };
 }

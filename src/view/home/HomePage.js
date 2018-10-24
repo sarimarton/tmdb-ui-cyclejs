@@ -4,6 +4,10 @@ import Snabbdom from 'snabbdom-pragma';
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
+  const searchResultItemClick$ = sources.DOM
+    .select('.result-item')
+    .events('click');
+
   const searchPhrase$ =
     sources.DOM
       .select('.search-phrase-input')
@@ -64,6 +68,10 @@ export function HomePage(sources) {
           );
         }),
 
-    HTTP: searchRequest$
+    HTTP: searchRequest$,
+
+    router:
+      searchResultItemClick$
+        .map(event => `/item/${event.target.dataset.id}`)
   };
 }
