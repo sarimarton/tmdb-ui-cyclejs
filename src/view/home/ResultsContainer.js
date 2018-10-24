@@ -12,7 +12,7 @@ export function ResultsContainer(isLoading, isError, results) {
 
         return (
           result.backdrop_path &&
-          <li className="uk-margin-bottom">
+          <li className="uk-margin-bottom" attrs={{width: 315, height: 169}}>
             <a href="#"
               className="result-item"
               attrs={{onclick: 'return false' }}
