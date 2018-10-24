@@ -13,7 +13,7 @@ import fromEntries from 'object.fromentries';
 import UIkit from 'uikit';
 import UIkitCss from '../node_modules/uikit/dist/css/uikit.min.css';
 
-import css from './index.css';
+import css from './main.css';
 
 import { HomeComponent } from './view/home/Home.js';
 import { ItemComponent } from './view/item/Item.js';
