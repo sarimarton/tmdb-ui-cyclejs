@@ -59,6 +59,7 @@ html, body {
 .view-container[data-active-page="home"] .view[data-page="item"] {
   opacity: 0;
   left: 50%;
+  z-index: -1;
 }
 
 .view-container[data-active-page="item"] .view[data-page="home"] {
