@@ -11,6 +11,7 @@ import switchPath from 'switch-path';
 import fromEntries from 'object.fromentries';
 
 import UIkit from 'uikit';
+import UIkitCss from '../node_modules/uikit/dist/css/uikit.min.css';
 
 import css from './index.css';
 
