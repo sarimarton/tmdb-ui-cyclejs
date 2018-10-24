@@ -27,10 +27,6 @@ html, body {
 }
 
 .header {
-  min-height: 40px;
-
-  flex: 0 1 auto;
-  align-self: stretch;
 }
 
 .view-container {
@@ -38,7 +34,7 @@ html, body {
   align-self: auto;
 
   position: relative;
-  /* max-width: 1200px; */
+  max-width: 1200px;
 }
 
 .view-container .view {
