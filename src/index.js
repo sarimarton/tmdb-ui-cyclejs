@@ -8,22 +8,30 @@ import { routerify } from 'cyclic-router';
 import { makeHistoryDriver } from '@cycle/history';
 import switchPath from 'switch-path';
 
+import fromEntries from 'object.fromentries';
+
 import css from './index.css';
 
 import { HomeComponent } from './view/home/Home.js';
 import { ItemComponent } from './view/item/Item.js';
 
 function main(sources) {
-  const homePageClick$ = sources.DOM.select('.home').events('click');
+  const homePageClick$ = sources.DOM
+    .select('.home')
+    .events('click');
 
-  const views = {
-    '/': HomeComponent,
-    '/item': ItemComponent
-  };
+  const viewTriplets = [
+    ['/', 'home', HomeComponent],
+    ['/item', 'item', ItemComponent]
+  ];
 
-  const match$ = sources.router.define(views);
+  const routeDefinition = fromEntries(
+    viewTriplets.map(([path, name, cmp]) => [path, cmp])
+  );
 
-  const page$ = match$.map(
+  const match$ = sources.router.define(routeDefinition);
+
+  const activePage$ = match$.map(
     ({ path, value: page }) =>
       page({
         ...sources,
@@ -31,33 +39,56 @@ function main(sources) {
       })
   );
 
-  const headerVDom =
-    <div>
-      header
+  const mainTemplate = (viewsVDoms, activePageName) =>
+    <div className="app">
+      <div className="header">
+        {activePageName !== 'home'
+          ? <a className="home">Go To Home</a>
+          : ''
+        }
+      </div>
+      <div className="view-container" data-activePage={activePageName}>
+        {viewsVDoms.map(vdom => vdom)}
+      </div>
     </div>;
+
+  const viewTemplate = (name, vdom, isActive) =>
+    <div className="view" data-page={name} data-active={isActive}>
+      {vdom}
+    </div>;
+
+  const views$ =
+    match$.map(({ value: page }) =>
+      // combine all the views
+      xs.combine.apply(null,
+        viewTriplets.map(([, name, cmp]) =>
+          cmp(sources).DOM.map(vdom =>
+            viewTemplate(name, vdom, cmp === page)
+          )
+        )
+      )
+      // and wrap them in the main template
+      .map(vdoms =>
+        mainTemplate(
+          vdoms,
+          viewTriplets.find(([,, cmp]) => cmp === page)[1]
+        )
+      )
+    )
+    .flatten();
 
   return {
     DOM:
-      page$
-        .map(page =>
-          page.DOM.map(pageVDom =>
-            <div>
-              {headerVDom}
-              {pageVDom}
-            </div>
-          )
-        ).flatten(),
+      views$,
 
     HTTP:
-      page$
+      activePage$
         .map(page => page.HTTP)
-        .filter(http => http)
+        .filter(http => http) // some pages don't have http output
         .flatten(),
 
     router:
-      xs.merge(
-        homePageClick$.mapTo('/')
-      )
+      homePageClick$.mapTo('/')
   };
 }
 

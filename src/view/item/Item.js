@@ -10,7 +10,7 @@ export function ItemComponent(sources) {
   return {
     DOM: xs.of(
       <div>
-        <button className={'home'}>Go To Home</button>
+        <h1>Item</h1>
         <br />
         Item
       </div>

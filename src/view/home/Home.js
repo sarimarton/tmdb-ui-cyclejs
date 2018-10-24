@@ -1,6 +1,6 @@
 import xs from 'xstream';
 import { run } from '@cycle/run';
-import { div } from '@cycle/dom';
+import { div, h1 } from '@cycle/dom';
 import Snabbdom from 'snabbdom-pragma';
 
 export function HomeComponent(sources) {
@@ -53,14 +53,17 @@ export function HomeComponent(sources) {
     DOM:
       xs.combine(searchPhrase$, content$, isLoading$, isError$)
         .map(([searchPhrase, content, isLoading, isError]) => {
-          return <div className={'page-home'}>
-            Home Page<br />
-            Search: <input className={'search-phrase-input'} />
-            <div>{isLoading ? 'Loading...' : ''}</div>
-            <div>{isError ? 'Network error...' : ''}</div>
-            {searchPhrase}
-            <pre>{JSON.stringify(content)}</pre>
-          </div>
+          return (
+            <div>
+              <h1>Home</h1>
+              Search for a Title:<br />
+              <input className={'search-phrase-input'} />
+              <div>{isLoading ? 'Loading...' : ''}</div>
+              <div>{isError ? 'Network error...' : ''}</div>
+              {searchPhrase}
+              {JSON.stringify(content)}
+            </div>
+          );
         }),
 
     HTTP: searchRequest$

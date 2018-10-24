@@ -41,6 +41,7 @@
     "@cycle/time": "^0.16.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "cyclic-router": "^5.1.7",
+    "object.fromentries": "^2.0.0",
     "snabbdom-pragma": "^2.7.0",
     "switch-path": "^1.2.0",
     "xstream": "^11.7.0"

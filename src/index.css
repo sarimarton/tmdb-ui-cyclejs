@@ -1,11 +1,75 @@
 
 html, body {
-    margin: 0;
-    height: 100%;
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 #app {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+#app * {
+  box-sizing: border-box;;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #4a647f 0%,#161618 100%);
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  min-height: 40px;
+
+  flex: 0 1 auto;
+  align-self: stretch;
+}
+
+.view-container {
+  border: 2px solid blue;
+
+  flex: 1 1 auto;
+  align-self: auto;
+
+  width: 800px;
+  position: relative;
+}
+
+.view-container .view {
+  border: 2px solid green;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition-property: opacity, left;
+  transition-duration: 1s, 1s;
+  padding: 20px;
+}
+
+.view-container .view[data-page="home"] {
+}
+
+.view-container .view[data-page="item"] {
+  left: 30%;
+}
+
+.view-container[data-active-page="home"] .view[data-page="item"] {
+  opacity: 0;
+  left: 80%;
+}
+
+.view-container[data-active-page="item"] .view[data-page="home"] {
+  opacity: 0;
+}
+
+.view-container[data-active-page="item"] .view[data-page="item"] {
+  left: 20%;
 }
