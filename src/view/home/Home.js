@@ -1,6 +1,4 @@
 import xs from 'xstream';
-import { run } from '@cycle/run';
-import { div } from '@cycle/dom';
 import Snabbdom from 'snabbdom-pragma';
 
 import { ResultsContainer } from './ResultsContainer.js';
