@@ -1,7 +1,9 @@
 import xs from 'xstream';
 import { run } from '@cycle/run';
-import { div, h1 } from '@cycle/dom';
+import { div } from '@cycle/dom';
 import Snabbdom from 'snabbdom-pragma';
+
+import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomeComponent(sources) {
   const searchPhrase$ =
@@ -55,13 +57,11 @@ export function HomeComponent(sources) {
         .map(([searchPhrase, content, isLoading, isError]) => {
           return (
             <div>
-              <h1>Home</h1>
-              Search for a Title:<br />
-              <input className={'search-phrase-input'} />
-              <div>{isLoading ? 'Loading...' : ''}</div>
-              <div>{isError ? 'Network error...' : ''}</div>
-              {searchPhrase}
-              {JSON.stringify(content)}
+              <h1>TMDb UI – Home</h1>
+              <legend className="uk-legend">Search for a Title:</legend>
+              <input className={'search-phrase-input uk-input'} />
+
+              {ResultsContainer(isLoading, isError, content && content.results)}
             </div>
           );
         }),

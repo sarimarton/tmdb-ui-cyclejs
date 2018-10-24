@@ -10,6 +10,8 @@ import switchPath from 'switch-path';
 
 import fromEntries from 'object.fromentries';
 
+import UIkit from 'uikit';
+
 import css from './index.css';
 
 import { HomeComponent } from './view/home/Home.js';
@@ -18,6 +20,10 @@ import { ItemComponent } from './view/item/Item.js';
 function main(sources) {
   const homePageClick$ = sources.DOM
     .select('.home')
+    .events('click');
+
+  const searchResultItemClick$ = sources.DOM
+    .select('.result-item')
     .events('click');
 
   const viewTriplets = [
@@ -40,20 +46,23 @@ function main(sources) {
   );
 
   const mainTemplate = (viewsVDoms, activePageName) =>
-    <div className="app">
-      <div className="header">
-        {activePageName !== 'home'
-          ? <a className="home">Go To Home</a>
-          : ''
-        }
+      <div className="app uk-light uk-background-secondary uk-padding">
+        <div className="header">
+          {activePageName !== 'home'
+            ? <a className="home">Go To Home</a>
+            : ''
+          }
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="#" className="result-item" attrs={{onclick: 'return false' }}>Item</a>
+
+        </div>
+        <div className="view-container" data-activePage={activePageName}>
+          {viewsVDoms.map(vdom => vdom)}
+        </div>
       </div>
-      <div className="view-container" data-activePage={activePageName}>
-        {viewsVDoms.map(vdom => vdom)}
-      </div>
-    </div>;
 
   const viewTemplate = (name, vdom, isActive) =>
-    <div className="view" data-page={name} data-active={isActive}>
+    <div className="view uk-padding" data-page={name} data-active={isActive}>
       {vdom}
     </div>;
 
@@ -88,7 +97,10 @@ function main(sources) {
         .flatten(),
 
     router:
-      homePageClick$.mapTo('/')
+      xs.merge(
+        homePageClick$.mapTo('/'),
+        searchResultItemClick$.mapTo('/item')
+      )
   };
 }
 
