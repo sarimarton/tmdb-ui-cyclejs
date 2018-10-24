@@ -48,12 +48,21 @@ export function MovieDetailsPage(sources) {
         <img src={`http://image.tmdb.org/t/p/w342${content.poster_path}`} alt="" />
       </div>
       <dl className="uk-description-list">
-        <dt>Overview</dt>
-        <dd>{content.overview}</dd>
         <dt>Popularity</dt>
         <dd>{content.vote_average}</dd>
+        <dt>Overview</dt>
+        <dd>{content.overview}</dd>
+        <dt>Genres</dt>
+        <dd>{content.genres.map(g => g.name).join(', ')}</dd>
+        <dt>Languages</dt>
+        <dd>{content.spoken_languages.map(g => g.name).join(', ')}</dd>
+        <dt>Original Title</dt>
+        <dd>{content.original_title}</dd>
         <dt>Release Date</dt>
         <dd>{content.release_date}</dd>
+        {content.imdb_id && <dt>IMDb URL</dt>}
+        {content.imdb_id && <dd><a href={`https://www.imdb.com/title/${content.imdb_id}/`}>
+            {`https://www.imdb.com/title/${content.imdb_id}/`}</a></dd>}
       </dl>
     </div>;
 
@@ -61,7 +70,6 @@ export function MovieDetailsPage(sources) {
     DOM:
       xs.combine(content$, isLoading$, isError$)
         .map(([content, isLoading, isError]) => {
-          console.log(content);
           return (
             <div>
               <h1>{content.title}</h1>
