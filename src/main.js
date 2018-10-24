@@ -27,7 +27,7 @@ import css from './main.css';
 
 // Main views
 import { HomeComponent } from './view/home/Home.js';
-import { ItemComponent } from './view/item/Item.js';
+import { MovieDetailsPage } from './view/details/MovieDetailsPage.js';
 
 function main(sources) {
   const homePageClick$ = sources.DOM
@@ -38,64 +38,76 @@ function main(sources) {
     .select('.result-item')
     .events('click');
 
-  const viewTriplets = [
-    ['/', 'home', HomeComponent],
-    ['/item', 'item', ItemComponent]
+  const viewEntries = [
+    ['/', {
+      name: 'home',
+      cmp: HomeComponent
+    }],
+    ['/item/:id', id => ({
+      name: 'item',
+      cmp: sources => MovieDetailsPage({
+         ...sources,
+         props$: xs.of({ id })
+      })
+    })]
   ];
 
-  const routeDefinition = fromEntries(
-    viewTriplets.map(([path, name, cmp]) => [path, cmp])
-  );
-
-  const match$ = sources.router.define(routeDefinition);
+  const match$ =
+    sources.router.define(fromEntries(viewEntries));
 
   const activePage$ = match$.map(
-    ({ path, value: page }) =>
-      page({
+    ({ path, value: pageCfg }) => {
+      return pageCfg.cmp({
         ...sources,
         router: sources.router.path(path)
       })
+    }
   );
 
   const mainTemplate = (viewsVDoms, activePageName) =>
-      <div className="app uk-light uk-background-secondary uk-padding">
-        <div className="header">
+    <div className="app uk-light uk-background-secondary">
+      <div className="header">
+        <ul className="uk-breadcrumb uk-padding-small">
           {activePageName !== 'home'
-            ? <a className="home">Go To Home</a>
-            : ''
+            ? <li><a className="home">Home</a></li>
+            : <li>&nbsp;</li>
           }
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <a href="#" className="result-item" attrs={{onclick: 'return false' }}>Item</a>
-
-        </div>
-        <div className="view-container" data-activePage={activePageName}>
-          {viewsVDoms.map(vdom => vdom)}
-        </div>
+        </ul>
       </div>
+      <div className="view-container" data-activePage={activePageName}>
+        {viewsVDoms.map(vdom => vdom)}
+      </div>
+    </div>;
 
   const viewTemplate = (name, vdom, isActive) =>
-    <div className="view uk-padding" data-page={name} data-active={isActive}>
+    <div className="view uk-margin-top-small uk-margin-left uk-margin-right"
+      data-page={name} data-active={isActive}
+    >
       {vdom}
     </div>;
 
   const views$ =
-    match$.map(({ value: page }) =>
-      // combine all the views
-      xs.combine.apply(null,
-        viewTriplets.map(([, name, cmp]) =>
-          cmp(sources).DOM.map(vdom =>
-            viewTemplate(name, vdom, cmp === page)
-          )
+    match$.map(({ path, value: pageCfg }) => {
+      // It's a bit hacky...
+      const _MovieDetailsPage = pageCfg.name === 'item'
+        ? pageCfg.cmp
+        : MovieDetailsPage;
+
+      // Combine all the views to allow smooth transition
+      return xs.combine(
+        HomeComponent(sources).DOM.map(vdom =>
+          viewTemplate('home', vdom, pageCfg.name === 'home')
+        ),
+        _MovieDetailsPage(sources).DOM.map(vdom =>
+          viewTemplate('item', vdom, pageCfg.name === 'item')
         )
       )
-      // and wrap them in the main template
-      .map(vdoms =>
-        mainTemplate(
-          vdoms,
-          viewTriplets.find(([,, cmp]) => cmp === page)[1]
-        )
-      )
-    )
+
+      // Wrap the views in the main template
+      .map(vdoms => {
+        return mainTemplate(vdoms, pageCfg.name)
+      })
+    })
     .flatten();
 
   return {
@@ -105,13 +117,15 @@ function main(sources) {
     HTTP:
       activePage$
         .map(page => page.HTTP)
-        .filter(http => http) // some pages don't have http output
+        .filter(http => http) // filter undefined: some pages don't have http sink
         .flatten(),
 
     router:
       xs.merge(
-        homePageClick$.mapTo('/'),
-        searchResultItemClick$.mapTo('/item')
+        homePageClick$
+          .mapTo('/'),
+        searchResultItemClick$
+          .map(event => `/item/${event.target.dataset.id}`)
       )
   };
 }

@@ -57,7 +57,7 @@ export function HomeComponent(sources) {
             <div>
               <h1>TMDb UI – Home</h1>
               <legend className="uk-legend">Search for a Title:</legend>
-              <input className={'search-phrase-input uk-input'} />
+              <input className={'search-phrase-input uk-input uk-margin-bottom'} />
 
               {ResultsContainer(isLoading, isError, content && content.results)}
             </div>

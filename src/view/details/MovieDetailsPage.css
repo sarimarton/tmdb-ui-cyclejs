@@ -1,0 +1,10 @@
+
+.movie-details dt {
+  color: rgba(255, 255, 255, .3);
+}
+
+.movie-details-img-container {
+  float: left;
+  width: 342px;
+  min-height: 497px;
+}

@@ -21,6 +21,9 @@ html, body {
 
   display: flex;
   flex-direction: column;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .header {
@@ -35,13 +38,12 @@ html, body {
   align-self: auto;
 
   position: relative;
-  max-width: 1200px;
+  /* max-width: 1200px; */
 }
 
 .view-container .view {
-  overflow: hidden;
   height: 100%;
-  width: 100%;
+  width: calc(100% - 50px);
   position: absolute;
   top: 0;
   left: 0;
@@ -54,6 +56,7 @@ html, body {
 
 .view-container .view[data-page="item"] {
   left: 30%;
+  width: 70%;
 }
 
 .view-container[data-active-page="home"] .view[data-page="item"] {
