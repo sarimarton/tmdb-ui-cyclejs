@@ -10,13 +10,12 @@ export function MovieDetailsPage(sources) {
 
   const detailsRequest$ =
     movieId$.map(id => ({
-      url: `https://api.themoviedb.org/3/movie/${id}?api_key=${sources.apiKey}`,
+      url: sources.SvcUrl(`/movie/${id}`),
       category: 'details',
       isRequest: true // duck typing :(
     }))
-    // Sadly we need this workaround to make loading work when landing on
-    // the movie page.
-    .compose(sources.Time.debounce(1));
+    // Sadly we need this workaround to make loading work when landing on the movie page.
+    .compose(sources.Time.delay(100));
 
   const detailsResponse$ =
     sources.HTTP
@@ -31,8 +30,35 @@ export function MovieDetailsPage(sources) {
           : JSON.parse(resp.text)
       );
 
+
+  const creditsRequest$ =
+    // We should derive it from movieId$, but then the request don't go out...
+    // It might be a bug in xstream.
+    detailsRequest$
+      .map(detailsRequest => ({
+        // :(
+        // url: sources.SvcUrl(`/movie/${id}/credits`),
+        url: detailsRequest.url.replace('?', '/credits?'),
+        category: 'credits',
+        isRequest: true // duck typing :(
+      }))
+
+  const creditsResponse$ =
+    sources.HTTP
+      .select('credits')
+      .map(resp$ =>
+        resp$.replaceError(err => xs.of(err))
+      )
+      .flatten()
+      .map(resp =>
+        resp instanceof Error
+          ? resp
+          : JSON.parse(resp.text)
+      );
+
+
   const content$ =
-    detailsResponse$
+    xs.combine(detailsResponse$, creditsResponse$)
       .startWith('');
 
   const isLoading$ =
@@ -45,39 +71,42 @@ export function MovieDetailsPage(sources) {
       .map(r => r instanceof Error)
       .startWith(false);
 
-  const MovieDetails = content =>
+  const MovieDetails = (details, cast) =>
     <div className="movie-details">
       <div className="movie-details-img-container uk-margin-right" style="float: left">
-        <img src={`http://image.tmdb.org/t/p/w342${content.poster_path}`} alt="" />
+        <img src={`http://image.tmdb.org/t/p/w342${details.poster_path}`} alt="" />
       </div>
       <dl className="uk-description-list">
         <dt>Popularity</dt>
-        <dd>{content.vote_average}</dd>
+        <dd>{details.vote_average}</dd>
         <dt>Overview</dt>
-        <dd>{content.overview}</dd>
+        <dd>{details.overview}</dd>
         <dt>Genres</dt>
-        <dd>{content.genres.map(g => g.name).join(', ')}</dd>
+        <dd>{details.genres.map(g => g.name).join(', ')}</dd>
+        <dt>Starring</dt>
+        <dd>{cast.cast.slice(0, 3).map(cast => cast.name).join(', ')}</dd>
         <dt>Languages</dt>
-        <dd>{content.spoken_languages.map(g => g.name).join(', ')}</dd>
+        <dd>{details.spoken_languages.map(g => g.name).join(', ')}</dd>
         <dt>Original Title</dt>
-        <dd>{content.original_title}</dd>
+        <dd>{details.original_title}</dd>
         <dt>Release Date</dt>
-        <dd>{content.release_date}</dd>
-        {content.imdb_id && <dt>IMDb URL</dt>}
-        {content.imdb_id && <dd><a href={`https://www.imdb.com/title/${content.imdb_id}/`}>
-            {`https://www.imdb.com/title/${content.imdb_id}/`}</a></dd>}
+        <dd>{details.release_date}</dd>
+        {details.imdb_id && <dt>IMDb URL</dt>}
+        {details.imdb_id && <dd><a href={`https://www.imdb.com/title/${details.imdb_id}/`}>
+            {`https://www.imdb.com/title/${details.imdb_id}/`}</a></dd>}
       </dl>
     </div>;
 
   const vdom$ =
     xs.combine(content$, isLoading$, isError$)
-      .map(([content, isLoading, isError]) => {
+      .map(([[details, cast], isLoading, isError]) => {
+        console.log(details, cast);
         return (
           <div>
-            <h1>{content.title}</h1>
+            <h1>{details && details.title}</h1>
             <div>{isLoading ? 'Loading...' : ''}</div>
             <div>{isError ? 'Network error...' : ''}</div>
-            { content && !isLoading && !isError && MovieDetails(content) }
+            { details && !isLoading && !isError && MovieDetails(details, cast) }
           </div>
         );
       });
@@ -87,6 +116,9 @@ export function MovieDetailsPage(sources) {
       vdom$,
 
     HTTP:
-      detailsRequest$
+      xs.merge(
+        detailsRequest$,
+        creditsRequest$
+      )
   };
 }

@@ -14,18 +14,34 @@ export function HomePage(sources) {
       .select('.search-phrase-input')
       .events('input')
       .map(ev => ev.target.value)
-      .filter(val => val.length > 3)
-      .compose(sources.Time.debounce(250))
+      .compose(sources.Time.debounce(300))
       .startWith('');
+
+  const discoveryRequest$ =
+    xs.of({
+      url: sources.SvcUrl(`/movie/popular?language=en-US&page=1`),
+      category: 'discovery',
+      isRequest: true // duck typing :(
+    })
+
+  const discoveryResponse$ =
+    sources.HTTP
+      .select('discovery')
+      .map(resp$ =>
+        resp$.replaceError(err => xs.of(err))
+      )
+      .flatten()
+      .map(resp => resp instanceof Error ? resp : JSON.parse(resp.text))
+      .startWith('')
 
   const searchRequest$ =
     searchPhrase$
-      .filter(val => val)
+      .filter(val => val.length > 3)
       .map(searchPhrase => ({
-        url: `https://api.themoviedb.org/3/search/movie?api_key=${sources.apiKey}&query=${searchPhrase}`,
+        url: sources.SvcUrl(`/search/movie?query=${searchPhrase}`),
         category: 'search',
         isRequest: true // duck typing :(
-      }));
+      }))
 
   const searchResponse$ =
     sources.HTTP
@@ -38,10 +54,16 @@ export function HomePage(sources) {
         resp instanceof Error
           ? resp
           : JSON.parse(resp.text)
-      );
+      )
+      .startWith('')
 
   const content$ =
-    searchResponse$
+    xs.combine(searchPhrase$, searchResponse$, discoveryResponse$)
+      .map(([searchPhrase, searchResponse, discoveryResponse]) =>
+        searchPhrase.length > 3
+          ? searchResponse
+          : discoveryResponse
+      )
       .startWith('');
 
   const isLoading$ =
@@ -55,15 +77,15 @@ export function HomePage(sources) {
       .startWith(false);
 
   const vdom$ =
-    xs.combine(searchPhrase$, content$, isLoading$, isError$)
-      .map(([searchPhrase, content, isLoading, isError]) => {
+    xs.combine(content$, isLoading$, isError$)
+      .map(([content, isLoading, isError]) => {
         return (
           <div>
             <h1>TMDb UI – Home</h1>
             <legend className="uk-legend">Search for a Title:</legend>
             <input className={'search-phrase-input uk-input uk-margin-bottom'} />
 
-            {ResultsContainer(isLoading, isError, content && content.results)}
+            {ResultsContainer(isLoading, isError, content.results)}
           </div>
         );
       });
@@ -73,7 +95,8 @@ export function HomePage(sources) {
     DOM:
       vdom$,
 
-    HTTP: searchRequest$,
+    HTTP:
+      xs.merge(searchRequest$, discoveryRequest$),
 
     router:
       searchResultItemClick$
