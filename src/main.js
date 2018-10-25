@@ -39,7 +39,7 @@ function main(sources) {
     name: 'home',
     cmp: () => HomePage
   }, {
-    path: '/item/:id',
+    path: '/movie/:id',
     name: 'item',
     cmp: id => sources => MovieDetailsPage({
        ...sources,

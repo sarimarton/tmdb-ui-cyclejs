@@ -54,25 +54,32 @@ export function HomePage(sources) {
       .map(r => r instanceof Error)
       .startWith(false);
 
+  const vdom$ =
+    xs.combine(searchPhrase$, content$, isLoading$, isError$)
+      .map(([searchPhrase, content, isLoading, isError]) => {
+        return (
+          <div>
+            <h1>TMDb UI – Home</h1>
+            <legend className="uk-legend">Search for a Title:</legend>
+            <input className={'search-phrase-input uk-input uk-margin-bottom'} />
+
+            {ResultsContainer(isLoading, isError, content && content.results)}
+          </div>
+        );
+      });
+
+
   return {
     DOM:
-      xs.combine(searchPhrase$, content$, isLoading$, isError$)
-        .map(([searchPhrase, content, isLoading, isError]) => {
-          return (
-            <div>
-              <h1>TMDb UI – Home</h1>
-              <legend className="uk-legend">Search for a Title:</legend>
-              <input className={'search-phrase-input uk-input uk-margin-bottom'} />
-
-              {ResultsContainer(isLoading, isError, content && content.results)}
-            </div>
-          );
-        }),
+      vdom$,
 
     HTTP: searchRequest$,
 
     router:
       searchResultItemClick$
-        .map(event => `/item/${event.target.dataset.id}`)
+        .map(event => `/movie/${event.target.dataset.id}`),
+
+    content:
+      content$
   };
 }
