@@ -47,6 +47,8 @@ html, body {
 }
 
 .view-container .view[data-page="home"] {
+  left: 10%;
+  width: 70%;
 }
 
 .view-container .view[data-page="item"] {
@@ -61,8 +63,9 @@ html, body {
 }
 
 .view-container[data-active-page="item"] .view[data-page="home"] {
-  opacity: 0;
-  left: -10%;
+  left: 2%;
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, .25), transparent 25%);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, .25), transparent 25%);
 }
 
 .view-container[data-active-page="item"] .view[data-page="item"] {
