@@ -1,6 +1,7 @@
 import xs from 'xstream';
 import Snabbdom from 'snabbdom-pragma';
 
+import css from './HomePage.css'
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {

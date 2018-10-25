@@ -3,7 +3,7 @@ import Snabbdom from 'snabbdom-pragma';
 
 export function ResultsContainer(isLoading, isError, results) {
   return (
-    <div className="results-container uk-padding">
+    <div className="results-container">
       <div>{isLoading ? 'Loading...' : ''}</div>
       <div>{isError ? 'Network error...' : ''}</div>
 
