@@ -98,7 +98,7 @@ function main(sources) {
     </div>;
 
   // Combine all the views to allow transition
-  const combineView$ = pages$.map(pages =>
+  const combinedVdom$ = pages$.map(pages =>
     xs.combine.apply(null, pages.map(
       page => page.result.DOM.map(vdom =>
         viewTemplate(page.name, vdom, page.isActive)
@@ -127,7 +127,7 @@ function main(sources) {
 
   return {
     DOM:
-      combineView$,
+      combinedVdom$,
 
     HTTP:
       httpSink$,
