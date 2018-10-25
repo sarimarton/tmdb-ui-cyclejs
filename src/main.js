@@ -73,7 +73,7 @@ function main(sources) {
       <div className="header">
         <ul className="uk-breadcrumb uk-padding-small">
           {activePageName !== 'home'
-            ? <li><a className="home">Home</a></li>
+            ? <li><a className="home">Back</a></li>
             : <li>&nbsp;</li>
           }
         </ul>
