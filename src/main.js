@@ -60,10 +60,10 @@ function main(sources) {
 
   const movieId$ = routerMatch$
     .map(activePage => activePage.value.args[0])
-    .filter(id => id)
+    .filter(id => id);
 
-  const homePageSinks$ = HomePage(sources);
-  const moviePageSinks$ = MovieDetailsPage({
+  const homePageSinks = HomePage(sources);
+  const moviePageSinks = MovieDetailsPage({
      ...sources,
      props$: xs.of({ movieId$ })
   });
@@ -92,26 +92,28 @@ function main(sources) {
 
   // Combine all the views to allow transition
   const combinedVdom$ =
-    xs.combine(homePageSinks$.DOM, moviePageSinks$.DOM, pageKey$)
+    xs.combine(homePageSinks.DOM, moviePageSinks.DOM, pageKey$)
       .map(([homePageVdom, moviePageVdom, pageKey]) =>
         mainTemplate(
-          [viewTemplate('home', homePageVdom, pageKey === 'home'),
-          viewTemplate('item', moviePageVdom, pageKey === 'item')],
+          [
+            viewTemplate('home', homePageVdom, pageKey === 'home'),
+            viewTemplate('item', moviePageVdom, pageKey === 'item')
+          ],
           pageKey
         )
       )
 
   const httpSink$ =
     xs.merge(
-      homePageSinks$.HTTP,
-      moviePageSinks$.HTTP
-    )
+      homePageSinks.HTTP,
+      moviePageSinks.HTTP
+    );
 
   const routerSink$ =
     xs.merge(
       homePageClick$
         .mapTo('/'),
-      homePageSinks$.router
+      homePageSinks.router
     );
 
   return {
