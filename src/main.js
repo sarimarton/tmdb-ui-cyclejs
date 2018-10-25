@@ -44,12 +44,14 @@ function main(sources) {
     cmp: id => sources => MovieDetailsPage({
        ...sources,
        props$: xs.of({ id })
-   })
+    })
   }];
 
   const routerDefEntries = viewEntries
     .map(({ path, name, cmp }) => [
       path,
+      // switchPath generates different output for parametrized routes, so
+      // we equalize here
       /\/:\w+/.test(path)
         ? (...args) => ({ name, args, cmp })
         : { name, args: [], cmp }
@@ -95,7 +97,7 @@ function main(sources) {
       {vdom}
     </div>;
 
-  // Combine all the views to allow smooth transition
+  // Combine all the views to allow transition
   const combineView$ = pages$.map(pages =>
     xs.combine.apply(null, pages.map(
       page => page.result.DOM.map(vdom =>
@@ -107,29 +109,36 @@ function main(sources) {
     )
   ).flatten();
 
+  const httpSink$ =
+    activePage$
+      .map(match => match.result.HTTP)
+      .filter(http => http) // fail safety
+      .flatten();
+
+  const routerSink$ =
+    xs.merge(
+      homePageClick$
+        .mapTo('/'),
+      activePage$
+        .map(match => match.result.router)
+        .filter(router => router)  // fail safety
+        .flatten()
+    );
+
   return {
     DOM:
       combineView$,
 
     HTTP:
-      activePage$
-        .map(match => match.result.HTTP)
-        .filter(http => http) // fail safety
-        .flatten(),
+      httpSink$,
 
     router:
-      xs.merge(
-        homePageClick$
-          .mapTo('/'),
-        activePage$
-          .map(match => match.result.router)
-          .filter(router => router)  // fail safety
-          .flatten()
-      )
+      routerSink$
   };
 }
 
-const mainWithRouting = routerify(main, switchPath);
+const mainWithRouting =
+  routerify(main, switchPath);
 
 const drivers = {
   DOM: makeDOMDriver('#app'),
