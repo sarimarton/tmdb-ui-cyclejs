@@ -7,13 +7,13 @@ export function MovieDetailsPage(sources) {
 
   const detailsRequest$ =
     (sources.props$ || xs.of(false))
-      .map(props => {
-        return props && ({
+      .map(props =>
+        props && ({
           url: `https://api.themoviedb.org/3/movie/${props.id}?api_key=${sources.apiKey}`,
           category: 'details',
           isRequest: true // duck typing :(
         })
-      });
+      );
 
   const detailsResponse$ =
     sources.HTTP

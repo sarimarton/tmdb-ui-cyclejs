@@ -34,31 +34,44 @@ function main(sources) {
     .select('.home')
     .events('click');
 
-  const viewEntries = [
-    ['/', {
-      name: 'home',
-      cmp: HomePage
-    }],
-    ['/item/:id', id => ({
-      name: 'item',
-      cmp: sources => MovieDetailsPage({
-         ...sources,
-         props$: xs.of({ id })
-      })
-    })]
-  ];
+  const viewEntries = [{
+    path: '/',
+    name: 'home',
+    cmp: () => HomePage
+  }, {
+    path: '/item/:id',
+    name: 'item',
+    cmp: id => sources => MovieDetailsPage({
+       ...sources,
+       props$: xs.of({ id })
+   })
+  }];
 
-  const match$ =
-    sources.router.define(fromEntries(viewEntries));
+  const routerDefEntries = viewEntries
+    .map(({ path, name, cmp }) => [
+      path,
+      /\/:\w+/.test(path)
+        ? (...args) => ({ name, args, cmp })
+        : { name, args: [], cmp }
+    ]);
 
-  const activePage$ = match$.map(
-    ({ path, value: pageCfg }) => {
-      return pageCfg.cmp({
-        ...sources,
-        router: sources.router.path(path)
-      })
-    }
-  );
+  const activePage$ = sources.router.define(fromEntries(routerDefEntries))
+    .map(match => ({
+      name: match.value.name,
+      result: match.value.cmp(...match.value.args)(sources)
+    }));
+
+  // Execute both subpages to allow rendering all of them for smooth transition
+  const pages$ = xs.combine(activePage$, xs.of(viewEntries))
+    .map(([activePage, viewEntries]) =>
+      viewEntries.map(entry => ({
+        name: entry.name,
+        isActive: entry.name === activePage.name,
+        result: entry.name === activePage.name
+          ? activePage.result
+          : entry.cmp()(sources)
+      }))
+    );
 
   const mainTemplate = (viewsVDoms, activePageName) =>
     <div className="app uk-light uk-background-secondary">
@@ -82,38 +95,26 @@ function main(sources) {
       {vdom}
     </div>;
 
-  const views$ =
-    match$.map(({ path, value: pageCfg }) => {
-      // It's a bit hacky to get the routerified component
-      const _MovieDetailsPage = pageCfg.name === 'item'
-        ? pageCfg.cmp
-        : MovieDetailsPage;
-
-      // Combine all the views to allow smooth transition
-      return xs.combine(
-        HomePage(sources).DOM.map(vdom =>
-          viewTemplate('home', vdom, pageCfg.name === 'home')
-        ),
-        _MovieDetailsPage(sources).DOM.map(vdom =>
-          viewTemplate('item', vdom, pageCfg.name === 'item')
-        )
+  // Combine all the views to allow smooth transition
+  const combineView$ = pages$.map(pages =>
+    xs.combine.apply(null, pages.map(
+      page => page.result.DOM.map(vdom =>
+        viewTemplate(page.name, vdom, page.isActive)
       )
-
-      // Wrap the views in the main template
-      .map(vdoms => {
-        return mainTemplate(vdoms, pageCfg.name)
-      })
-    })
-    .flatten();
+    ))
+    .map(vdoms =>
+      mainTemplate(vdoms, pages.find(page => page.isActive).name)
+    )
+  ).flatten();
 
   return {
     DOM:
-      views$,
+      combineView$,
 
     HTTP:
       activePage$
-        .map(page => page.HTTP)
-        .filter(http => http) // filter undefined: some pages don't have http sink
+        .map(match => match.result.HTTP)
+        .filter(http => http) // fail safety
         .flatten(),
 
     router:
@@ -121,13 +122,15 @@ function main(sources) {
         homePageClick$
           .mapTo('/'),
         activePage$
-          .map(page => page.router)
+          .map(match => match.result.router)
+          .filter(router => router)  // fail safety
           .flatten()
       )
   };
 }
 
 const mainWithRouting = routerify(main, switchPath);
+
 const drivers = {
   DOM: makeDOMDriver('#app'),
   history: makeHistoryDriver(),
