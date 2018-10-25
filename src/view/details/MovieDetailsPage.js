@@ -13,7 +13,10 @@ export function MovieDetailsPage(sources) {
       url: `https://api.themoviedb.org/3/movie/${id}?api_key=${sources.apiKey}`,
       category: 'details',
       isRequest: true // duck typing :(
-    }));
+    }))
+    // Sadly we need this workaround to make loading work when landing on
+    // the movie page.
+    .compose(sources.Time.debounce(1));
 
   const detailsResponse$ =
     sources.HTTP
@@ -34,7 +37,7 @@ export function MovieDetailsPage(sources) {
 
   const isLoading$ =
     xs.merge(detailsRequest$, detailsResponse$)
-      .map(r => r && r.isRequest)
+      .map(r => Boolean(r && r.isRequest))
       .startWith(false);
 
   const isError$ =
@@ -66,19 +69,22 @@ export function MovieDetailsPage(sources) {
       </dl>
     </div>;
 
+  const vdom$ =
+    xs.combine(content$, isLoading$, isError$)
+      .map(([content, isLoading, isError]) => {
+        return (
+          <div>
+            <h1>{content.title}</h1>
+            <div>{isLoading ? 'Loading...' : ''}</div>
+            <div>{isError ? 'Network error...' : ''}</div>
+            { content && !isLoading && !isError && MovieDetails(content) }
+          </div>
+        );
+      });
+
   return {
     DOM:
-      xs.combine(content$, isLoading$, isError$)
-        .map(([content, isLoading, isError]) => {
-          return (
-            <div>
-              <h1>{content.title}</h1>
-              <div>{isLoading ? 'Loading...' : ''}</div>
-              <div>{isError ? 'Network error...' : ''}</div>
-              { content && MovieDetails(content) }
-            </div>
-          );
-        }),
+      vdom$,
 
     HTTP:
       detailsRequest$
