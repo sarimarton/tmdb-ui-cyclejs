@@ -36,44 +36,37 @@ function main(sources) {
 
   const viewEntries = [{
     path: '/',
-    name: 'home',
-    cmp: () => HomePage
+    key: 'home'
   }, {
     path: '/movie/:id',
-    name: 'item',
-    cmp: id => sources => MovieDetailsPage({
-       ...sources,
-       props$: xs.of({ id })
-    })
+    key: 'item'
   }];
 
   const routerDefEntries = viewEntries
-    .map(({ path, name, cmp }) => [
+    .map(({ path, key }) => [
       path,
-      // switchPath generates different output for parametrized routes, so
-      // we equalize here
+      // switchPath generates different outputs for parametrized routes, so
+      // we equalize here - a bit hacky
       /\/:\w+/.test(path)
-        ? (...args) => ({ name, args, cmp })
-        : { name, args: [], cmp }
+        ? (...args) => ({ key, args })
+        : { key, args: [] }
     ]);
 
-  const activePage$ = sources.router.define(fromEntries(routerDefEntries))
-    .map(match => ({
-      name: match.value.name,
-      result: match.value.cmp(...match.value.args)(sources)
-    }));
+  const routerMatch$ =
+    sources.router.define(fromEntries(routerDefEntries));
 
-  // Execute both subpages to allow rendering all of them for smooth transition
-  const pages$ = xs.combine(activePage$, xs.of(viewEntries))
-    .map(([activePage, viewEntries]) =>
-      viewEntries.map(entry => ({
-        name: entry.name,
-        isActive: entry.name === activePage.name,
-        result: entry.name === activePage.name
-          ? activePage.result
-          : entry.cmp()(sources)
-      }))
-    );
+  const pageKey$ = routerMatch$
+    .map(match => match.value.key);
+
+  const movieId$ = routerMatch$
+    .map(activePage => activePage.value.args[0])
+    .filter(id => id)
+
+  const homePageSinks$ = HomePage(sources);
+  const moviePageSinks$ = MovieDetailsPage({
+     ...sources,
+     props$: xs.of({ movieId$ })
+  });
 
   const mainTemplate = (viewsVDoms, activePageName) =>
     <div className="app uk-light uk-background-secondary">
@@ -98,31 +91,27 @@ function main(sources) {
     </div>;
 
   // Combine all the views to allow transition
-  const combinedVdom$ = pages$.map(pages =>
-    xs.combine.apply(null, pages.map(
-      page => page.result.DOM.map(vdom =>
-        viewTemplate(page.name, vdom, page.isActive)
+  const combinedVdom$ =
+    xs.combine(homePageSinks$.DOM, moviePageSinks$.DOM, pageKey$)
+      .map(([homePageVdom, moviePageVdom, pageKey]) =>
+        mainTemplate(
+          [viewTemplate('home', homePageVdom, pageKey === 'home'),
+          viewTemplate('item', moviePageVdom, pageKey === 'item')],
+          pageKey
+        )
       )
-    ))
-    .map(vdoms =>
-      mainTemplate(vdoms, pages.find(page => page.isActive).name)
-    )
-  ).flatten();
 
   const httpSink$ =
-    activePage$
-      .map(match => match.result.HTTP)
-      .filter(http => http) // fail safety
-      .flatten();
+    xs.merge(
+      homePageSinks$.HTTP,
+      moviePageSinks$.HTTP
+    )
 
   const routerSink$ =
     xs.merge(
       homePageClick$
         .mapTo('/'),
-      activePage$
-        .map(match => match.result.router)
-        .filter(router => router)  // fail safety
-        .flatten()
+      homePageSinks$.router
     );
 
   return {

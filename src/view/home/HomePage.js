@@ -77,9 +77,6 @@ export function HomePage(sources) {
 
     router:
       searchResultItemClick$
-        .map(event => `/movie/${event.target.dataset.id}`),
-
-    content:
-      content$
+        .map(event => `/movie/${event.target.dataset.id}`)
   };
 }

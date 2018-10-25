@@ -4,16 +4,16 @@ import Snabbdom from 'snabbdom-pragma';
 import css from './MovieDetailsPage.css';
 
 export function MovieDetailsPage(sources) {
+  const movieId$ = sources.props$
+    .map(props => props.movieId$)
+    .flatten();
 
   const detailsRequest$ =
-    (sources.props$ || xs.of(false))
-      .map(props =>
-        props && ({
-          url: `https://api.themoviedb.org/3/movie/${props.id}?api_key=${sources.apiKey}`,
-          category: 'details',
-          isRequest: true // duck typing :(
-        })
-      );
+    movieId$.map(id => ({
+      url: `https://api.themoviedb.org/3/movie/${id}?api_key=${sources.apiKey}`,
+      category: 'details',
+      isRequest: true // duck typing :(
+    }));
 
   const detailsResponse$ =
     sources.HTTP
