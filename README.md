@@ -19,6 +19,6 @@ npm start
 npm test
 ```
 
-#### See online:
+#### See it online:
 
 https://sarimarton.github.io/tmdb-ui-cyclejs/
