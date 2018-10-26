@@ -21,4 +21,4 @@ npm test
 
 #### See it online:
 
-https://sarimarton.github.io/tmdb-ui-cyclejs/
+https://sarimarton.github.io/tmdb-ui-cyclejs/dist/

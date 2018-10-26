@@ -7,7 +7,7 @@
   "scripts": {
     "test": "webpack --entry ./test/test.js --output test/test.compiled.js --display none && mocha test/test.compiled.js",
     "start": "webpack-dev-server --mode=development --open 'Google Chrome'",
-    "build": "webpack"
+    "build": "webpack --mode=production"
   },
   "repository": {
     "type": "git",

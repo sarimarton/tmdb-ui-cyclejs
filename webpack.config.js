@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+const config = {
   entry: {
     app: ["./src/main.js"]
   },
@@ -42,7 +42,14 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
     filename: "bundle.js",
   }
-}
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === 'development') {
+    config.output.publicPath = '/';
+  }
+
+  return config;
+};
