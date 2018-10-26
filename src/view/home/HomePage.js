@@ -108,7 +108,7 @@ export function HomePage(sources) {
 
     router:
       searchResultItemClick$
-        .map(event => `/movie/${event.target.dataset.id}`),
+        .map(event => `/movie/${event.target.closest('[data-id]').dataset.id}`),
 
     // See the comment in main.js
     movieTitle$
