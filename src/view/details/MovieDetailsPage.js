@@ -35,7 +35,6 @@ export function MovieDetailsPage(sources) {
           : JSON.parse(resp.text)
       );
 
-
   const creditsRequest$ =
     // We should derive it from movieId$, but then the request don't go out...
     // It might be a bug in xstream.
