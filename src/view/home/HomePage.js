@@ -17,6 +17,9 @@ export function HomePage(sources) {
       .compose(sources.Time.debounce(300))
       .startWith('');
 
+  const discoveryModePredicate =
+    phrase => phrase.length <= 3;
+
   const discoveryRequest$ =
     xs.of({
       url: sources.SvcUrl(`/movie/popular?language=en-US&page=1`),
@@ -36,7 +39,7 @@ export function HomePage(sources) {
 
   const searchRequest$ =
     searchPhrase$
-      .filter(val => val.length > 3)
+      .filter(searchPhrase => !discoveryModePredicate(searchPhrase))
       .map(searchPhrase => ({
         url: sources.SvcUrl(`/search/movie?query=${searchPhrase}`),
         category: 'search',
@@ -60,19 +63,21 @@ export function HomePage(sources) {
   const content$ =
     xs.combine(searchPhrase$, searchResponse$, discoveryResponse$)
       .map(([searchPhrase, searchResponse, discoveryResponse]) =>
-        searchPhrase.length > 3
-          ? searchResponse
-          : discoveryResponse
+        discoveryModePredicate(searchPhrase)
+          ? discoveryResponse
+          : searchResponse
       )
       .startWith('');
 
   const movieTitle$ =
     xs.combine(content$, searchResultItemClick$)
-      .map(([content, searchResultItemClick]) =>
-        content.results.find(
+      .map(([content, searchResultItemClick]) => {
+        const clickedItem = content.results && content.results.find(
           item => item.id == searchResultItemClick.target.dataset.id
-        ).title
-      )
+        );
+
+        return clickedItem ? clickedItem.title : '';
+      })
 
   const isLoading$ =
     xs.merge(searchRequest$, searchResponse$)
@@ -85,13 +90,17 @@ export function HomePage(sources) {
       .startWith(false);
 
   const vdom$ =
-    xs.combine(content$, isLoading$, isError$)
-      .map(([content, isLoading, isError]) => {
+    xs.combine(searchPhrase$, content$, isLoading$, isError$)
+      .map(([searchPhrase, content, isLoading, isError]) => {
         return (
           <div>
             <h1>TMDb UI – Home</h1>
             <legend className="uk-legend">Search for a Title:</legend>
             <input className={'search-phrase-input uk-input uk-margin-bottom'} />
+
+            <h3 className="uk-heading-bullet uk-margin-remove-top">
+              {discoveryModePredicate(searchPhrase) ? 'Popular Now' : 'Search Results'}
+            </h3>
 
             {ResultsContainer(isLoading, isError, content.results)}
           </div>
