@@ -61,7 +61,6 @@ export function MovieDetailsPage(sources) {
           : JSON.parse(resp.text)
       );
 
-
   const content$ =
     xs.combine(detailsResponse$, creditsResponse$)
       .startWith('');
@@ -109,7 +108,7 @@ export function MovieDetailsPage(sources) {
           <div>
             <h1>{movieTitle || details && details.title}</h1>
             <div>{isLoading ? 'Loading...' : ''}</div>
-            <div>{isError ? 'Network error...' : ''}</div>
+            <div>{isError ? 'Network error' : ''}</div>
             { details && !isLoading && !isError && MovieDetails(details, cast) }
           </div>
         );
