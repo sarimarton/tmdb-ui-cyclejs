@@ -66,6 +66,14 @@ export function HomePage(sources) {
       )
       .startWith('');
 
+  const movieTitle$ =
+    xs.combine(content$, searchResultItemClick$)
+      .map(([content, searchResultItemClick]) =>
+        content.results.find(
+          item => item.id == searchResultItemClick.target.dataset.id
+        ).title
+      )
+
   const isLoading$ =
     xs.merge(searchRequest$, searchResponse$)
       .map(r => r && r.isRequest)
@@ -100,6 +108,9 @@ export function HomePage(sources) {
 
     router:
       searchResultItemClick$
-        .map(event => `/movie/${event.target.dataset.id}`)
+        .map(event => `/movie/${event.target.dataset.id}`),
+
+    // See the comment in main.js
+    movieTitle$
   };
 }

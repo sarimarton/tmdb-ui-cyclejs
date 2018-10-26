@@ -65,7 +65,13 @@ function main(sources) {
   const homePageSinks = HomePage(sources);
   const moviePageSinks = MovieDetailsPage({
      ...sources,
-     props$: xs.of({ movieId$ })
+     props$: xs.of({
+       movieId$,
+       // It is used only to avoid load flickering on the Movie page.
+       // movieTitle$ is defined as a sink for the sake of simplicity,
+       // and complying with the requirement to not use any state lib.
+       movieTitle$: homePageSinks.movieTitle$
+     })
   });
 
   const mainTemplate = (viewsVDoms, activePageName) =>
@@ -139,7 +145,7 @@ const drivers = {
   SvcUrl: () => (relativeUrl) =>
     relativeUrl
       .replace(/^/, 'https://api.themoviedb.org/3')
-      .replace(/(\?|$)/, '?api_key=bf6b860ab05ac2d94054ba9ca96cf1fa&')
+      .replace(/(\?|$)/, '?api_key=bf6b860ab05ac2d94054ba9ca96cf1fa&'),
 };
 
 run(mainWithRouting, drivers);

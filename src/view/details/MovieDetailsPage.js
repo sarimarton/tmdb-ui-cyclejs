@@ -8,6 +8,11 @@ export function MovieDetailsPage(sources) {
     .map(props => props.movieId$)
     .flatten();
 
+  const movieTitle$ = sources.props$
+    .map(props => props.movieTitle$)
+    .flatten()
+    .startWith('')
+
   const detailsRequest$ =
     movieId$.map(id => ({
       url: sources.SvcUrl(`/movie/${id}`),
@@ -98,12 +103,11 @@ export function MovieDetailsPage(sources) {
     </div>;
 
   const vdom$ =
-    xs.combine(content$, isLoading$, isError$)
-      .map(([[details, cast], isLoading, isError]) => {
-        console.log(details, cast);
+    xs.combine(movieTitle$, content$, isLoading$, isError$)
+      .map(([movieTitle, [details, cast], isLoading, isError]) => {
         return (
           <div>
-            <h1>{details && details.title}</h1>
+            <h1>{movieTitle || details && details.title}</h1>
             <div>{isLoading ? 'Loading...' : ''}</div>
             <div>{isError ? 'Network error...' : ''}</div>
             { details && !isLoading && !isError && MovieDetails(details, cast) }
