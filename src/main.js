@@ -18,10 +18,6 @@ import switchPath from 'switch-path';
 // Polyfill
 import fromEntries from 'object.fromentries';
 
-// CSS
-import UIkit from 'uikit';
-import UIkitCss from '../node_modules/uikit/dist/css/uikit.min.css';
-
 // Custom CSS
 import css from './main.css';
 

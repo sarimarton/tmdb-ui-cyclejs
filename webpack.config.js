@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -13,6 +14,9 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
+    new CopyWebpackPlugin([{
+      from: './node_modules/uikit/dist/**/*'
+    }]),
     new HtmlWebpackPlugin({
       title: 'A simple TMDb UI',
       template: './src/index.html'
