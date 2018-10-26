@@ -5,20 +5,33 @@ import css from './HomePage.css'
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
-  const searchResultItemClick$ = sources.DOM
-    .select('.result-item')
-    .events('click');
+  const searchResultItemClick$ =
+    sources.DOM
+      .select('.result-item')
+      .events('click');
 
-  const searchPhrase$ =
+  const clearSearchClick$ =
+    sources.DOM
+      .select('.search-phrase .uk-icon')
+      .events('click')
+
+  const searchPhraseInput$ =
     sources.DOM
       .select('.search-phrase-input')
       .events('input')
-      .map(ev => ev.target.value)
+
+  const searchPhrase$ =
+    xs.merge(searchPhraseInput$, clearSearchClick$)
+      .map(ev =>
+        ev instanceof InputEvent
+          ? ev.target.value
+          : ''
+      )
       .compose(sources.Time.debounce(300))
       .startWith('');
 
   const discoveryModePredicate =
-    phrase => phrase.length <= 3;
+    phrase => phrase.length === 0;
 
   const discoveryRequest$ =
     xs.of({
@@ -96,7 +109,12 @@ export function HomePage(sources) {
           <div>
             <h1>TMDb UI – Home</h1>
             <legend className="uk-legend">Search for a Title:</legend>
-            <input className={'search-phrase-input uk-input uk-margin-bottom'} />
+
+            <div className="search-phrase uk-inline uk-margin-bottom">
+              {searchPhrase &&
+              <a className="uk-form-icon uk-form-icon-flip" attrs={{ 'uk-icon': 'icon: close' }}></a>}
+              <input className={'search-phrase-input uk-input'} type="text" value={searchPhrase} />
+            </div>
 
             <h3 className="uk-heading-bullet uk-margin-remove-top">
               {discoveryModePredicate(searchPhrase) ? 'Popular Now' : 'Search Results'}

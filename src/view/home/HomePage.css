@@ -1,4 +1,5 @@
 
-.search-phrase-input {
+.search-phrase {
+  width: 100%;
   max-width: 1245px;
 }
