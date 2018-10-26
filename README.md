@@ -9,7 +9,12 @@ cd tmdb-ui-cyclejs
 npm install
 ```
 
-#### Running:
+#### Run:
 ```
 npm start
+```
+
+#### Test:
+```
+npm test
 ```

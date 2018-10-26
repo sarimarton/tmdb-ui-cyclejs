@@ -25,7 +25,7 @@ import css from './main.css';
 import { HomePage } from './view/home/HomePage.js';
 import { MovieDetailsPage } from './view/details/MovieDetailsPage.js';
 
-function main(sources) {
+export function main(sources) {
   const homePageClick$ = sources.DOM
     .select('.home, .view-container[data-active-page="item"] > .view[data-page="home"]')
     .events('click');
