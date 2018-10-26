@@ -12,7 +12,7 @@ export function HomePage(sources) {
 
   const clearSearchClick$ =
     sources.DOM
-      .select('.search-phrase .uk-icon')
+      .select('.search-phrase .uk-icon[uk-icon="icon:close"]')
       .events('click')
 
   const searchPhraseInput$ =
@@ -111,8 +111,10 @@ export function HomePage(sources) {
             <legend className="uk-legend">Search for a Title:</legend>
 
             <div className="search-phrase uk-inline uk-margin-bottom">
-              {searchPhrase &&
-              <a className="uk-form-icon uk-form-icon-flip" attrs={{ 'uk-icon': 'icon: close' }}></a>}
+              <a
+                className="uk-form-icon uk-form-icon-flip"
+                attrs={{ 'uk-icon': 'icon:' + (searchPhrase ? 'close' : 'search') }}
+              ></a>
               <input className={'search-phrase-input uk-input'} type="text" value={searchPhrase} />
             </div>
 
