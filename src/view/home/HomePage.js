@@ -119,7 +119,9 @@ export function HomePage(sources) {
             </div>
 
             <h3 className="uk-heading-bullet uk-margin-remove-top">
-              {discoveryModePredicate(searchPhrase) ? 'Popular Now' : 'Search Results'}
+              {discoveryModePredicate(searchPhrase)
+                ? 'Popular Now'
+                : `Search Results for "${searchPhrase}":`}
             </h3>
 
             {ResultsContainer(isLoading, isError, content.results)}
