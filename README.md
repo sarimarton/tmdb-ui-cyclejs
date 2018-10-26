@@ -1,6 +1,6 @@
 # tmdb-ui-cyclejs
 
-A simple TMDb UI using Cycle.js.
+A simple, purely functional/reactive TMDb UI using Cycle.js.
 
 #### Installation:
 ```
