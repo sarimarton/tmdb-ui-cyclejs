@@ -5,6 +5,11 @@
 
 .movie-details-img-container {
   float: left;
-  width: 342px;
+  min-width: 342px;
   min-height: 497px;
+}
+
+.movie-details dt,
+.movie-details dd {
+  margin-left: 362px;
 }
