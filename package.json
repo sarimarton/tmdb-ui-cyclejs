@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sarimarton/dazn-assignment-cyclejs.git"
+    "url": "git+https://github.com/sarimarton/tmdb-ui-cyclejs.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sarimarton/dazn-assignment-cyclejs/issues"
+    "url": "https://github.com/sarimarton/tmdb-ui-cyclejs/issues"
   },
-  "homepage": "https://github.com/sarimarton/dazn-assignment-cyclejs#readme",
+  "homepage": "https://github.com/sarimarton/tmdb-ui-cyclejs#readme",
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
