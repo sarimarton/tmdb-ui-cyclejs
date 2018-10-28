@@ -6,7 +6,7 @@
   "main": "webpack.config.js",
   "scripts": {
     "test": "webpack --entry ./test/test.js --output test/test.compiled.js --display none && mocha test/test.compiled.js",
-    "start": "webpack-dev-server --mode=development --open 'Google Chrome'",
+    "start": "webpack-dev-server --mode=development --open",
     "build": "webpack --mode=production"
   },
   "repository": {
