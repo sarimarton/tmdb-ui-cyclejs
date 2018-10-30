@@ -19,6 +19,7 @@ export function HomePage(sources) {
     sources.DOM
       .select('.search-phrase-input')
       .events('input')
+      .compose(sources.Time.debounce(300))
 
   const searchPhrase$ =
     xs.merge(searchPhraseInput$, clearSearchClick$)
@@ -27,7 +28,6 @@ export function HomePage(sources) {
           ? ev.target.value
           : ''
       )
-      .compose(sources.Time.debounce(300))
       .startWith('');
 
   const discoveryModePredicate =
