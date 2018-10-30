@@ -72,10 +72,15 @@ export function main(sources) {
 
   const mainTemplate = (viewsVDoms, activePageName) =>
     <div className="app uk-light uk-background-secondary">
-      <div className="header">
-        <ul className="uk-breadcrumb uk-padding-small">
+      <div className="header uk-width-1-1">
+        <ul className="uk-breadcrumb uk-width-1-1">
           {activePageName !== 'home'
-            ? <li><a className="home">Back</a></li>
+            ? <li className="uk-width-1-1">
+                <a className="home uk-width-1-1 uk-padding-small">
+                  <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
+                  Back
+                </a>
+              </li>
             : <li>&nbsp;</li>
           }
         </ul>
