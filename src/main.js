@@ -86,7 +86,7 @@ export function main(sources) {
         </ul>
       </div>
       <div className="view-container" data-activePage={activePageName}>
-        {viewsVDoms.map(vdom => vdom)}
+        {viewsVDoms}
       </div>
     </div>;
 
