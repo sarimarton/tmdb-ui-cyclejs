@@ -11,13 +11,6 @@ import { makeHashHistoryDriver } from '@cycle/history';
 // JSX
 import Snabbdom from 'snabbdom-pragma';
 
-// Router
-import { routerify } from 'cyclic-router';
-import switchPath from 'switch-path';
-
-// Polyfill
-import fromEntries from 'object.fromentries';
-
 // Custom CSS
 import css from './main.css';
 
@@ -30,32 +23,27 @@ export function main(sources) {
     .select('.home, .view-container[data-active-page="item"] > .view[data-page="home"]')
     .events('click');
 
-  const viewEntries = [{
-    path: '/',
-    key: 'home'
-  }, {
-    path: '/movie/:id',
-    key: 'item'
-  }];
-
-  const routerDefEntries = viewEntries
-    .map(({ path, key }) => [
-      path,
-      // switchPath generates different outputs for parametrized routes, so
-      // we equalize here - a bit hacky
-      /\/:\w+/.test(path)
-        ? (...args) => ({ key, args })
-        : { key, args: [] }
-    ]);
+  const routerConfig = {
+    'home': [/^\/$/, () => []],
+    'item': [/^\/movie\/(\d+)$/, () => [RegExp.$1]]
+  };
 
   const routerMatch$ =
-    sources.router.define(fromEntries(routerDefEntries));
+    sources.history
+      .map(item =>
+        Object.entries(routerConfig).reduce(
+          (acc, [key, [re, argsFn]]) =>
+            acc || re.test(item.pathname) && { key, args: argsFn() },
+          false
+        )
+        || { key: 'home', args: [] }
+      )
 
   const pageKey$ = routerMatch$
-    .map(match => match.value.key);
+    .map(routerMatch => routerMatch.key);
 
   const movieId$ = routerMatch$
-    .map(activePage => activePage.value.args[0])
+    .map(routerMatch => routerMatch.args[0])
     .filter(id => id);
 
   const homePageSinks = HomePage(sources);
@@ -77,15 +65,12 @@ export function main(sources) {
         <div className="app uk-light uk-background-secondary">
           <div className="header uk-width-1-1">
             <ul className="uk-breadcrumb uk-width-1-1">
-              {pageKey !== 'home'
-                ? <li className="uk-width-1-1">
-                    <a className="home uk-width-1-1 uk-padding-small">
-                      <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
-                      Back
-                    </a>
-                  </li>
-                : <li>&nbsp;</li>
-              }
+              <li className="uk-width-1-1" style={'visibility: ' + (pageKey === 'home' ? 'hidden' : 'visible')}>
+                <a className="home uk-width-1-1 uk-padding-small">
+                  <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
+                  Back
+                </a>
+              </li>
             </ul>
           </div>
           <div className="view-container" data-activePage={pageKey}>
@@ -105,11 +90,10 @@ export function main(sources) {
       moviePageSinks.HTTP
     );
 
-  const routerSink$ =
+  const history$ =
     xs.merge(
-      homePageClick$
-        .mapTo('/'),
-      homePageSinks.router
+      homePageClick$.mapTo('/'),
+      homePageSinks.history
     );
 
   return {
@@ -119,18 +103,15 @@ export function main(sources) {
     HTTP:
       http$,
 
-    router:
-      routerSink$
+    history:
+      history$
   };
 }
 
-const mainWithRouting =
-  routerify(main, switchPath);
-
 const drivers = {
   DOM: makeDOMDriver('#app'),
-  history: makeHashHistoryDriver(),
   HTTP: makeHTTPDriver(),
+  history: makeHashHistoryDriver(),
   Time: timeDriver,
   SvcUrl: () => (relativeUrl) =>
     relativeUrl
@@ -138,4 +119,4 @@ const drivers = {
       .replace(/(\?|$)/, '?api_key=bf6b860ab05ac2d94054ba9ca96cf1fa&'),
 };
 
-run(mainWithRouting, drivers);
+run(main, drivers);

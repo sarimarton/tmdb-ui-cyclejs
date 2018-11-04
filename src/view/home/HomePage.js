@@ -98,7 +98,7 @@ export function HomePage(sources) {
         discoveryRequest$
       ),
 
-    router:
+    history:
       searchResultItemClick$
         .map(event => `/movie/${event.target.closest('[data-id]').dataset.id}`),
 
