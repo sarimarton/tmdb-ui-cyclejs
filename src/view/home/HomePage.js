@@ -2,36 +2,27 @@ import xs from 'xstream';
 import Snabbdom from 'snabbdom-pragma';
 
 import css from './HomePage.css'
+
+import { SearchBar } from './SearchBar.js';
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
+  const searchBarSinks =
+    SearchBar(sources);
+
+  const searchPhrase$ =
+    searchBarSinks.searchPhrase$;
+
+  const searchResponse$ =
+    searchBarSinks.searchResponse$;
+
+  const discoveryModePredicate =
+    phrase => phrase.length === 0;
+
   const searchResultItemClick$ =
     sources.DOM
       .select('.result-item')
       .events('click');
-
-  const clearSearchClick$ =
-    sources.DOM
-      .select('.search-phrase .uk-icon[uk-icon="icon:close"]')
-      .events('click')
-
-  const searchPhraseInput$ =
-    sources.DOM
-      .select('.search-phrase-input')
-      .events('input')
-      .compose(sources.Time.debounce(300))
-
-  const searchPhrase$ =
-    xs.merge(searchPhraseInput$, clearSearchClick$)
-      .map(ev =>
-        ev instanceof InputEvent
-          ? ev.target.value
-          : ''
-      )
-      .startWith('');
-
-  const discoveryModePredicate =
-    phrase => phrase.length === 0;
 
   const discoveryRequest$ =
     xs.of({
@@ -48,29 +39,6 @@ export function HomePage(sources) {
       )
       .flatten()
       .map(resp => resp instanceof Error ? resp : JSON.parse(resp.text))
-      .startWith('')
-
-  const searchRequest$ =
-    searchPhrase$
-      .filter(searchPhrase => !discoveryModePredicate(searchPhrase))
-      .map(searchPhrase => ({
-        url: sources.SvcUrl(`/search/movie?query=${searchPhrase}`),
-        category: 'search',
-        isRequest: true // duck typing :(
-      }))
-
-  const searchResponse$ =
-    sources.HTTP
-      .select('search')
-      .map(resp$ =>
-        resp$.replaceError(err => xs.of(err))
-      )
-      .flatten()
-      .map(resp =>
-        resp instanceof Error
-          ? resp
-          : JSON.parse(resp.text)
-      )
       .startWith('')
 
   const content$ =
@@ -93,30 +61,20 @@ export function HomePage(sources) {
       })
 
   const isLoading$ =
-    xs.merge(searchRequest$, searchResponse$)
-      .map(r => r && r.isRequest)
-      .startWith(false);
+    searchBarSinks.searchIsLoading$;
 
   const isError$ =
-    xs.merge(searchRequest$, searchResponse$)
-      .map(r => r instanceof Error)
-      .startWith(false);
+    searchBarSinks.searchIsError$;
 
   const vdom$ =
-    xs.combine(searchPhrase$, content$, isLoading$, isError$)
-      .map(([searchPhrase, content, isLoading, isError]) => {
+    xs.combine(searchBarSinks.DOM, searchPhrase$, content$, isLoading$, isError$)
+      .map(([searchBarVdom, searchPhrase, content, isLoading, isError]) => {
         return (
           <div>
             <h1>TMDb UI – Home</h1>
             <legend className="uk-legend">Search for a Title:</legend>
 
-            <div className="search-phrase uk-inline uk-margin-bottom">
-              <a
-                className="uk-form-icon uk-form-icon-flip"
-                attrs={{ 'uk-icon': 'icon:' + (searchPhrase ? 'close' : 'search') }}
-              ></a>
-              <input className={'search-phrase-input uk-input'} type="text" value={searchPhrase} />
-            </div>
+            {searchBarVdom}
 
             <h3 className="uk-heading-bullet uk-margin-remove-top">
               {discoveryModePredicate(searchPhrase)
@@ -135,7 +93,10 @@ export function HomePage(sources) {
       vdom$,
 
     HTTP:
-      xs.merge(searchRequest$, discoveryRequest$),
+      xs.merge(
+        searchBarSinks.HTTP,
+        discoveryRequest$
+      ),
 
     router:
       searchResultItemClick$
