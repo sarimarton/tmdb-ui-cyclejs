@@ -6,7 +6,7 @@ import { run } from '@cycle/run';
 import { makeDOMDriver } from '@cycle/dom';
 import { makeHTTPDriver } from '@cycle/http';
 import { timeDriver } from '@cycle/time';
-import { makeHistoryDriver } from '@cycle/history';
+import { makeHashHistoryDriver } from '@cycle/history';
 
 // JSX
 import Snabbdom from 'snabbdom-pragma';
@@ -70,47 +70,36 @@ export function main(sources) {
      })
   });
 
-  const mainTemplate = (viewsVDoms, activePageName) =>
-    <div className="app uk-light uk-background-secondary">
-      <div className="header uk-width-1-1">
-        <ul className="uk-breadcrumb uk-width-1-1">
-          {activePageName !== 'home'
-            ? <li className="uk-width-1-1">
-                <a className="home uk-width-1-1 uk-padding-small">
-                  <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
-                  Back
-                </a>
-              </li>
-            : <li>&nbsp;</li>
-          }
-        </ul>
-      </div>
-      <div className="view-container" data-activePage={activePageName}>
-        {viewsVDoms}
-      </div>
-    </div>;
-
-  const viewTemplate = (name, vdom, isActive) =>
-    <div className="view uk-margin-top-small uk-margin-left uk-margin-right"
-      data-page={name} data-active={isActive}
-    >
-      {vdom}
-    </div>;
-
   // Combine all the views to allow transition
-  const combinedVdom$ =
+  const vdom$ =
     xs.combine(homePageSinks.DOM, moviePageSinks.DOM, pageKey$)
       .map(([homePageVdom, moviePageVdom, pageKey]) =>
-        mainTemplate(
-          [
-            viewTemplate('home', homePageVdom, pageKey === 'home'),
-            viewTemplate('item', moviePageVdom, pageKey === 'item')
-          ],
-          pageKey
-        )
+        <div className="app uk-light uk-background-secondary">
+          <div className="header uk-width-1-1">
+            <ul className="uk-breadcrumb uk-width-1-1">
+              {pageKey !== 'home'
+                ? <li className="uk-width-1-1">
+                    <a className="home uk-width-1-1 uk-padding-small">
+                      <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
+                      Back
+                    </a>
+                  </li>
+                : <li>&nbsp;</li>
+              }
+            </ul>
+          </div>
+          <div className="view-container" data-activePage={pageKey}>
+            {[['home', homePageVdom], ['item', moviePageVdom]]
+            .map(([name, vdom]) =>
+              <div className="view uk-margin-top-small uk-margin-left uk-margin-right" data-page={name}>
+                {vdom}
+              </div>
+            )}
+          </div>
+        </div>
       )
 
-  const httpSink$ =
+  const http$ =
     xs.merge(
       homePageSinks.HTTP,
       moviePageSinks.HTTP
@@ -125,10 +114,10 @@ export function main(sources) {
 
   return {
     DOM:
-      combinedVdom$,
+      vdom$,
 
     HTTP:
-      httpSink$,
+      http$,
 
     router:
       routerSink$
@@ -140,7 +129,7 @@ const mainWithRouting =
 
 const drivers = {
   DOM: makeDOMDriver('#app'),
-  history: makeHistoryDriver(),
+  history: makeHashHistoryDriver(),
   HTTP: makeHTTPDriver(),
   Time: timeDriver,
   SvcUrl: () => (relativeUrl) =>
