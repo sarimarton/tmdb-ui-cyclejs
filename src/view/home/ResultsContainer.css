@@ -1,24 +1,24 @@
 
 /* Fine adjustments on uk-thumbnav */
-.results-container .uk-thumbnav > * > ::after {
+.ResultsContainer .uk-thumbnav > * > ::after {
   background: rgba(255,255,255,0.2);
 }
 
-.results-container .result-item-thumbnail-holder,
-.results-container .uk-thumbnav > * > ::after {
+.ResultsContainer__thumbnail-holder,
+.ResultsContainer .uk-thumbnav > * > ::after {
   height: 169px;
 }
 
-.results-container .uk-thumbnav > * > :focus::after,
-.results-container .uk-thumbnav > * > :hover::after {
+.ResultsContainer .uk-thumbnav > * > :focus::after,
+.ResultsContainer .uk-thumbnav > * > :hover::after {
   background-color: transparent;
 }
 
-.results-container .result-item-caption {
+.ResultsContainer__caption {
   width: 300px;
 }
 
-.results-container .uk-thumbnav > * > :focus,
-.results-container .uk-thumbnav > * > :hover {
+.ResultsContainer .uk-thumbnav > * > :focus,
+.ResultsContainer .uk-thumbnav > * > :hover {
   text-decoration: none;
 }

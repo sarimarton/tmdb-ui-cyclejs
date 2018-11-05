@@ -21,7 +21,7 @@ export function HomePage(sources) {
 
   const searchResultItemClick$ =
     sources.DOM
-      .select('.result-item')
+      .select('.ResultsContainer__result-item')
       .events('click');
 
   const discoveryRequest$ =
@@ -70,7 +70,7 @@ export function HomePage(sources) {
     xs.combine(searchBarSinks.DOM, searchPhrase$, content$, isLoading$, isError$)
       .map(([searchBarVdom, searchPhrase, content, isLoading, isError]) => {
         return (
-          <div>
+          <div className="HomePage">
             <h1>TMDb UI – Home</h1>
             <legend className="uk-legend">Search for a Title:</legend>
 

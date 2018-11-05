@@ -1,15 +1,15 @@
 
-.movie-details dt {
-  color: rgba(255, 255, 255, .3);
-}
-
-.movie-details-img-container {
+.MovieDetailsPage__img-container {
   float: left;
   min-width: 342px;
   min-height: 497px;
 }
 
-.movie-details dt,
-.movie-details dd {
+.MovieDetailsPage dt {
+  color: rgba(255, 255, 255, .3);
+}
+
+.MovieDetailsPage dt,
+.MovieDetailsPage dd {
   margin-left: 362px;
 }

@@ -39,9 +39,6 @@ export function main(sources) {
         || { key: 'home', args: [] }
       )
 
-  const pageKey$ = routerMatch$
-    .map(routerMatch => routerMatch.key);
-
   const movieId$ = routerMatch$
     .map(routerMatch => routerMatch.args[0])
     .filter(id => id);
@@ -60,12 +57,12 @@ export function main(sources) {
 
   // Combine all the views to allow transition
   const vdom$ =
-    xs.combine(homePageSinks.DOM, moviePageSinks.DOM, pageKey$)
-      .map(([homePageVdom, moviePageVdom, pageKey]) =>
-        <div className="app uk-light uk-background-secondary">
-          <div className="header uk-width-1-1">
+    xs.combine(homePageSinks.DOM, moviePageSinks.DOM, routerMatch$)
+      .map(([homePageVdom, moviePageVdom, routerMatch]) =>
+        <div className="App uk-light uk-background-secondary">
+          <div className="App__header uk-width-1-1">
             <ul className="uk-breadcrumb uk-width-1-1">
-              <li className="uk-width-1-1" style={'visibility: ' + (pageKey === 'home' ? 'hidden' : 'visible')}>
+              <li className="uk-width-1-1" style={'visibility: ' + (routerMatch.key === 'home' ? 'hidden' : 'visible')}>
                 <a className="home uk-width-1-1 uk-padding-small">
                   <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
                   Back
@@ -73,10 +70,10 @@ export function main(sources) {
               </li>
             </ul>
           </div>
-          <div className="view-container" data-activePage={pageKey}>
+          <div className="App__view-container" data-activePage={routerMatch.key}>
             {[['home', homePageVdom], ['item', moviePageVdom]]
             .map(([name, vdom]) =>
-              <div className="view uk-margin-top-small uk-margin-left uk-margin-right" data-page={name}>
+              <div className="App__view uk-margin-top-small uk-margin-left uk-margin-right" data-page={name}>
                 {vdom}
               </div>
             )}
@@ -109,7 +106,7 @@ export function main(sources) {
 }
 
 const drivers = {
-  DOM: makeDOMDriver('#app'),
+  DOM: makeDOMDriver('#root'),
   HTTP: makeHTTPDriver(),
   history: makeHashHistoryDriver(),
   Time: timeDriver,

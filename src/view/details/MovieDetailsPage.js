@@ -75,8 +75,8 @@ export function MovieDetailsPage(sources) {
       .startWith(false);
 
   const MovieDetails = (details, cast) =>
-    <div className="movie-details">
-      <div className="movie-details-img-container uk-margin-right" style="float: left">
+    <div className="MovieDetailsPage">
+      <div className="MovieDetailsPage__img-container uk-margin-right" style="float: left">
         <img src={`http://image.tmdb.org/t/p/w342${details.poster_path}`} alt="" />
       </div>
       <dl className="uk-description-list">
