@@ -69,11 +69,8 @@ export function SearchBar(sources) {
 
 
   return {
-    DOM:
-      vdom$,
-
-    HTTP:
-      searchRequest$,
+    DOM: vdom$,
+    HTTP: searchRequest$,
 
     searchPhrase$,
     searchResponse$,

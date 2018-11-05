@@ -7,14 +7,14 @@ import { SearchBar } from './SearchBar.js';
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
-  const searchBarSinks =
-    SearchBar(sources);
-
-  const searchPhrase$ =
-    searchBarSinks.searchPhrase$;
-
-  const searchResponse$ =
-    searchBarSinks.searchResponse$;
+  const {
+    DOM: searchBarVdom$,
+    HTTP: searchBarHttp$,
+    searchPhrase$,
+    searchResponse$,
+    searchIsLoading$,
+    searchIsError$
+  } = SearchBar(sources);
 
   const discoveryModePredicate =
     phrase => phrase.length === 0;
@@ -60,15 +60,9 @@ export function HomePage(sources) {
         return clickedItem ? clickedItem.title : '';
       })
 
-  const isLoading$ =
-    searchBarSinks.searchIsLoading$;
-
-  const isError$ =
-    searchBarSinks.searchIsError$;
-
   const vdom$ =
-    xs.combine(searchBarSinks.DOM, searchPhrase$, content$, isLoading$, isError$)
-      .map(([searchBarVdom, searchPhrase, content, isLoading, isError]) => {
+    xs.combine(searchBarVdom$, searchPhrase$, content$, searchIsLoading$, searchIsError$)
+      .map(([searchBarVdom, searchPhrase, content, searchIsLoading, searchIsError]) => {
         return (
           <div className="HomePage">
             <h1>TMDb UI – Home</h1>
@@ -82,25 +76,24 @@ export function HomePage(sources) {
                 : `Search Results for "${searchPhrase}":`}
             </h3>
 
-            {ResultsContainer(isLoading, isError, content.results)}
+            {ResultsContainer(searchIsLoading, searchIsError, content.results)}
           </div>
         );
       });
 
+  const http$ = xs.merge(
+    searchBarHttp$,
+    discoveryRequest$
+  );
+
+  const navigation$ =
+    searchResultItemClick$
+      .map(event => `/movie/${event.target.closest('[data-id]').dataset.id}`);
 
   return {
-    DOM:
-      vdom$,
-
-    HTTP:
-      xs.merge(
-        searchBarSinks.HTTP,
-        discoveryRequest$
-      ),
-
-    history:
-      searchResultItemClick$
-        .map(event => `/movie/${event.target.closest('[data-id]').dataset.id}`),
+    DOM: vdom$,
+    HTTP: http$,
+    history: navigation$,
 
     // See the comment in main.js
     movieTitle$
