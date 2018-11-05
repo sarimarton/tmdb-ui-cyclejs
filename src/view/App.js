@@ -8,7 +8,7 @@ import { MovieDetailsPage } from './details/MovieDetailsPage.js';
 
 export function App(sources) {
   const homePageClick$ = sources.DOM
-    .select('.home, .view-container[data-active-page="item"] > .view[data-page="home"]')
+    .select('.home')
     .events('click');
 
   const routerConfig = {
@@ -37,9 +37,7 @@ export function App(sources) {
      ...sources,
      props$: xs.of({
        movieId$,
-       // It is used only to avoid load flickering on the Movie page.
-       // movieTitle$ is defined as a sink for the sake of simplicity,
-       // and complying with the requirement to not use any state lib.
+       // It's used to avoid load flickering on the Movie page.
        movieTitle$: homePageSinks.movieTitle$
      })
   });

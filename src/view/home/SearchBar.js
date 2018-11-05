@@ -45,12 +45,12 @@ export function SearchBar(sources) {
       )
       .startWith('')
 
-  const searchIsLoading$ =
+  const isLoading$ =
     xs.merge(searchRequest$, searchResponse$)
       .map(r => r && r.isRequest)
       .startWith(false);
 
-  const searchIsError$ =
+  const isError$ =
     xs.merge(searchRequest$, searchResponse$)
       .map(r => r instanceof Error)
       .startWith(false);
@@ -74,7 +74,7 @@ export function SearchBar(sources) {
 
     searchPhrase$,
     searchResponse$,
-    searchIsLoading$,
-    searchIsError$
+    isLoading$,
+    isError$
   };
 }

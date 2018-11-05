@@ -12,8 +12,8 @@ export function HomePage(sources) {
     HTTP: searchBarHttp$,
     searchPhrase$,
     searchResponse$,
-    searchIsLoading$,
-    searchIsError$
+    isLoading$: searchIsLoading$,
+    isError$: searchIsError$
   } = SearchBar(sources);
 
   const discoveryModePredicate =
@@ -53,12 +53,14 @@ export function HomePage(sources) {
   const movieTitle$ =
     xs.combine(content$, searchResultItemClick$)
       .map(([content, searchResultItemClick]) => {
-        const clickedItem = content.results && content.results.find(
-          item => item.id == searchResultItemClick.target.dataset.id
-        );
+        const clickedItem =
+          content.results &&
+          content.results.find(
+            item => item.id == searchResultItemClick.target.dataset.id
+          );
 
         return clickedItem ? clickedItem.title : '';
-      })
+      });
 
   const vdom$ =
     xs.combine(searchBarVdom$, searchPhrase$, content$, searchIsLoading$, searchIsError$)
@@ -76,6 +78,7 @@ export function HomePage(sources) {
                 : `Search Results for "${searchPhrase}":`}
             </h3>
 
+            {/* Stateless component */}
             {ResultsContainer(searchIsLoading, searchIsError, content.results)}
           </div>
         );
@@ -95,7 +98,7 @@ export function HomePage(sources) {
     HTTP: http$,
     history: navigation$,
 
-    // See the comment in main.js
+    // See the comment in App.js
     movieTitle$
   };
 }

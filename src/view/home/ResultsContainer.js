@@ -15,7 +15,7 @@ export function ResultsContainer(isLoading, isError, results) {
         return (
           result.backdrop_path &&
           <li className="uk-margin-bottom">
-            <a className="ResultsContainer__result-item" href="#" attrs={{onclick: 'return false' }} data-id={result.id}>
+            <a className="ResultsContainer__result-item" href="#" attrs={{ onclick: 'return false' }} data-id={result.id}>
 
               {/* I should assemble the URL according to
                 https://developers.themoviedb.org/3/configuration/get-api-configuration
