@@ -77,7 +77,8 @@ export function App(sources) {
 
   const navigation$ = xs.merge(
     homePageClick$.mapTo('/'),
-    homePageSinks.history
+    homePageSinks.history,
+    moviePageSinks.history,
   );
 
   return {

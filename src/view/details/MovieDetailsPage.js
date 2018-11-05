@@ -113,14 +113,24 @@ export function MovieDetailsPage(sources) {
         );
       });
 
-  return {
-    DOM:
-      vdom$,
+  const http$ = xs.merge(
+    detailsRequest$,
+    creditsRequest$
+  );
 
-    HTTP:
-      xs.merge(
-        detailsRequest$,
-        creditsRequest$
+  const navigation$ =
+    sources.DOM
+      .select('.App__view, .App__view-container')
+      .events('click')
+      .filter(event =>
+        event.target.classList.contains('App__view') ||
+        event.target.classList.contains('App__view-container')
       )
+      .mapTo('/');
+
+  return {
+    DOM: vdom$,
+    HTTP: http$,
+    history: navigation$
   };
 }

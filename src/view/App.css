@@ -48,15 +48,16 @@ html, body, #root {
 }
 
 .App__view[data-page="item"] {
+  padding-left: 30%;
+  transform: translateX(-30%);
   left: 30%;
-  width: 70%;
+  width: 90%;
   position: fixed;
   top: calc(54px + 20px);
 }
 
 .App__view-container[data-active-page="home"] .App__view[data-page="item"] {
   opacity: 0;
-  left: 30%;
   z-index: -1;
 }
 
