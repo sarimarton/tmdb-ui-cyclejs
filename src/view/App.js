@@ -20,8 +20,7 @@ export function App(sources) {
     sources.history
       .map(item =>
         Object.entries(routerConfig).reduce(
-          (acc, [key, re]) =>
-            acc || re.test(item.pathname) && { key, args: [RegExp.$1] },
+          (acc, [key, re]) => acc || re.test(item.pathname) && { key, args: [RegExp.$1] },
           false
         )
         || { key: 'home', args: [] }
@@ -35,21 +34,20 @@ export function App(sources) {
   const homePageSinks = HomePage(sources);
   const moviePageSinks = MovieDetailsPage({
      ...sources,
-     props$: xs.of({
-       movieId$,
-       // It's used to avoid load flickering on the Movie page.
-       movieTitle$: homePageSinks.movieTitle$
-     })
+     movieId$,
+     // It's used to avoid load flickering on the Movie page.
+     movieTitle$: homePageSinks.movieTitle$
   });
 
   // Combine all the views to allow transition
   const vdom$ =
     xs.combine(homePageSinks.DOM, moviePageSinks.DOM, routerMatch$)
       .map(([homePageVdom, moviePageVdom, routerMatch]) =>
-        <div className="App uk-light uk-background-secondary">
+        <div className="App uk-light uk-background-secondary" data-activePage={routerMatch.key}>
+
           <div className="App__header uk-width-1-1">
             <ul className="uk-breadcrumb uk-width-1-1">
-              <li className="uk-width-1-1" style={'visibility: ' + (routerMatch.key === 'home' ? 'hidden' : 'visible')}>
+              <li className="uk-width-1-1">
                 <a className="home uk-width-1-1 uk-padding-small">
                   <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
                   Back
@@ -57,7 +55,8 @@ export function App(sources) {
               </li>
             </ul>
           </div>
-          <div className="App__view-container" data-activePage={routerMatch.key}>
+
+          <div className="App__view-container">
             {[['home', homePageVdom], ['item', moviePageVdom]]
             .map(([name, vdom]) =>
               <div className="App__view uk-margin-top-small uk-margin-left uk-margin-right" data-page={name}>

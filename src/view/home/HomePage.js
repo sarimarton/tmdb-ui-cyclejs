@@ -7,6 +7,9 @@ import { SearchBar } from './SearchBar.js';
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
+  const discoveryModePredicate =
+    phrase => phrase.length === 0;
+
   const {
     DOM: searchBarVdom$,
     HTTP: searchBarHttp$,
@@ -15,14 +18,6 @@ export function HomePage(sources) {
     isLoading$: searchIsLoading$,
     isError$: searchIsError$
   } = SearchBar(sources);
-
-  const discoveryModePredicate =
-    phrase => phrase.length === 0;
-
-  const searchResultItemClick$ =
-    sources.DOM
-      .select('.ResultsContainer__result-item')
-      .events('click');
 
   const discoveryRequest$ =
     xs.of({
@@ -50,39 +45,46 @@ export function HomePage(sources) {
       )
       .startWith('');
 
+  const {
+    DOM: resultsVdom$,
+    resultsItemClick$
+  } = ResultsContainer({
+     ...sources,
+     isLoading$: searchIsLoading$,
+     isError$: searchIsError$,
+     content$
+  });
+
   const movieTitle$ =
-    xs.combine(content$, searchResultItemClick$)
-      .map(([content, searchResultItemClick]) => {
+    xs.combine(content$, resultsItemClick$)
+      .map(([content, resultsItemClick]) => {
         const clickedItem =
           content.results &&
           content.results.find(
-            item => item.id == searchResultItemClick.target.dataset.id
+            item => item.id === Number(resultsItemClick.target.dataset.id)
           );
 
         return clickedItem ? clickedItem.title : '';
       });
 
   const vdom$ =
-    xs.combine(searchBarVdom$, searchPhrase$, content$, searchIsLoading$, searchIsError$)
-      .map(([searchBarVdom, searchPhrase, content, searchIsLoading, searchIsError]) => {
-        return (
-          <div className="HomePage">
-            <h1>TMDb UI – Home</h1>
-            <legend className="uk-legend">Search for a Title:</legend>
+    xs.combine(searchBarVdom$, searchPhrase$, resultsVdom$)
+      .map(([searchBarVdom, searchPhrase, resultsVdom]) =>
+        <div className="HomePage">
+          <h1>TMDb UI – Home</h1>
+          <legend className="uk-legend">Search for a Title:</legend>
 
-            {searchBarVdom}
+          {searchBarVdom}
 
-            <h3 className="uk-heading-bullet uk-margin-remove-top">
-              {discoveryModePredicate(searchPhrase)
-                ? 'Popular Now'
-                : `Search Results for "${searchPhrase}":`}
-            </h3>
+          <h3 className="uk-heading-bullet uk-margin-remove-top">
+            {discoveryModePredicate(searchPhrase)
+              ? 'Popular Now'
+              : `Search Results for "${searchPhrase}":`}
+          </h3>
 
-            {/* Stateless component */}
-            {ResultsContainer(searchIsLoading, searchIsError, content.results)}
-          </div>
-        );
-      });
+          {resultsVdom}
+        </div>
+      );
 
   const http$ = xs.merge(
     searchBarHttp$,
@@ -90,7 +92,7 @@ export function HomePage(sources) {
   );
 
   const navigation$ =
-    searchResultItemClick$
+    resultsItemClick$
       .map(event => `/movie/${event.target.closest('[data-id]').dataset.id}`);
 
   return {

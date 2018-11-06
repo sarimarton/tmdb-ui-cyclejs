@@ -4,13 +4,11 @@ import Snabbdom from 'snabbdom-pragma';
 import css from './MovieDetailsPage.css';
 
 export function MovieDetailsPage(sources) {
-  const movieId$ = sources.props$
-    .map(props => props.movieId$)
-    .flatten();
+  const movieId$ =
+    sources.movieId$;
 
-  const movieTitle$ = sources.props$
-    .map(props => props.movieTitle$)
-    .flatten()
+  const movieTitle$ =
+    sources.movieTitle$
     .startWith('')
 
   const detailsRequest$ =

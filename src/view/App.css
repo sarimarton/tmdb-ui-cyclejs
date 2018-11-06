@@ -22,6 +22,16 @@ html, body, #root {
 .App__header {
   position: fixed;
   z-index: 1;
+
+  transition-property: opacity, visibility;
+  transition-duration: .3s, 0s;
+  transition-delay: 0s, 0s;
+}
+
+.App[data-active-page="home"] .App__header {
+  transition-delay: 0s, .3s;
+  visibility: hidden;
+  opacity: 0;
 }
 
 .App__view-container {
@@ -56,12 +66,12 @@ html, body, #root {
   top: calc(54px + 20px);
 }
 
-.App__view-container[data-active-page="home"] .App__view[data-page="item"] {
+.App[data-active-page="home"] .App__view[data-page="item"] {
   opacity: 0;
   z-index: -1;
 }
 
-.App__view-container[data-active-page="item"] .App__view[data-page="home"] {
+.App[data-active-page="item"] .App__view[data-page="home"] {
   left: 7%;
   /* -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, .25), transparent 45%);
   mask-image: linear-gradient(to right, rgba(0, 0, 0, .25), transparent 45%); */
@@ -69,6 +79,6 @@ html, body, #root {
   filter: blur(10px);
 }
 
-.App__view-container[data-active-page="item"] .App__view[data-page="item"] {
+.App[data-active-page="item"] .App__view[data-page="item"] {
   left: 20%;
 }
