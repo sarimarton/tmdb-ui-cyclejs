@@ -4,12 +4,12 @@ import Snabbdom from 'snabbdom-pragma';
 export function SearchBar(sources) {
   const clearSearchClick$ =
     sources.DOM
-      .select('.SearchBar .uk-icon[uk-icon="icon:close"]')
+      .select('.js-clear.uk-icon[uk-icon="icon:close"]')
       .events('click')
 
   const searchPhraseInput$ =
     sources.DOM
-      .select('.SearchBar__input')
+      .select('.js-input')
       .events('input')
       .compose(sources.Time.debounce(300))
 
@@ -60,10 +60,10 @@ export function SearchBar(sources) {
       .map(searchPhrase =>
         <div className="SearchBar uk-inline uk-margin-bottom">
           <a
-            className="uk-form-icon uk-form-icon-flip"
+            className="uk-form-icon uk-form-icon-flip js-clear"
             attrs={{ 'uk-icon': 'icon:' + (searchPhrase ? 'close' : 'search') }}
           ></a>
-          <input className="SearchBar__input uk-input" type="text" value={searchPhrase} />
+          <input className="SearchBar__input uk-input js-input" type="text" value={searchPhrase} />
         </div>
       );
 

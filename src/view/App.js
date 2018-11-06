@@ -8,7 +8,7 @@ import { MovieDetailsPage } from './details/MovieDetailsPage.js';
 
 export function App(sources) {
   const homePageClick$ = sources.DOM
-    .select('.home')
+    .select('.js-home')
     .events('click');
 
   const routerConfig = {
@@ -48,7 +48,7 @@ export function App(sources) {
           <div className="App__header uk-width-1-1">
             <ul className="uk-breadcrumb uk-width-1-1">
               <li className="uk-width-1-1">
-                <a className="home uk-width-1-1 uk-padding-small">
+                <a className="js-home uk-width-1-1 uk-padding-small">
                   <span className="uk-margin-small-right uk-icon" attrs={{ 'uk-icon': 'icon:chevron-left' }}></span>
                   Back
                 </a>

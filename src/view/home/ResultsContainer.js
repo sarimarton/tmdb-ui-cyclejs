@@ -6,7 +6,7 @@ import css from './ResultsContainer.css';
 export function ResultsContainer(sources) {
   const resultsItemClick$ =
     sources.DOM
-      .select('.ResultsContainer__result-item')
+      .select('.js-result-click')
       .events('click');
 
   const {
@@ -28,7 +28,8 @@ export function ResultsContainer(sources) {
             .results.filter(result => result.backdrop_path)
             .map(result =>
               <li className="uk-margin-bottom">
-                <a className="ResultsContainer__result-item" href="#" attrs={{ onclick: 'return false' }} data-id={result.id}>
+                <a className="ResultsContainer__result-item js-result-click" href="#"
+                  attrs={{ onclick: 'return false' }} data-id={result.id}>
 
                   {/* I should assemble the URL according to
                     https://developers.themoviedb.org/3/configuration/get-api-configuration
