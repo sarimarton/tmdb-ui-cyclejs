@@ -27,4 +27,6 @@ npm test
 
 I chose Cycle.js because it's a purely functional framework. If I were to use React, I would've used [Cycle-React](https://www.npmjs.com/package/cycle-react) or something [similar](https://staltz.com/use-react-in-cyclejs-and-vice-versa.html) to achieve the same purely functional approach.
 
+For CSS, I only used the BEM convention, no preprocessor.
+
 Tests need some research, because currently there's no mock HTTP driver for Cycle.js.
