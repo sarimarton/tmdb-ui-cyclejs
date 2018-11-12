@@ -7,9 +7,6 @@ import { SearchBar } from './SearchBar.js';
 import { ResultsContainer } from './ResultsContainer.js';
 
 export function HomePage(sources) {
-  const discoveryModePredicate =
-    phrase => phrase.length === 0;
-
   const {
     DOM: searchBarVdom$,
     HTTP: searchBarHttp$,
@@ -18,6 +15,10 @@ export function HomePage(sources) {
     isLoading$: searchIsLoading$,
     isError$: searchIsError$
   } = SearchBar(sources);
+
+  const isDiscoveryMode$ =
+    searchPhrase$
+      .map(phrase => phrase.length === 0);
 
   const discoveryRequest$ =
     xs.of({
@@ -37,9 +38,9 @@ export function HomePage(sources) {
       .startWith('')
 
   const content$ =
-    xs.combine(searchPhrase$, searchResponse$, discoveryResponse$)
-      .map(([searchPhrase, searchResponse, discoveryResponse]) =>
-        discoveryModePredicate(searchPhrase)
+    xs.combine(isDiscoveryMode$, searchResponse$, discoveryResponse$)
+      .map(([isDiscoveryMode, searchResponse, discoveryResponse]) =>
+        isDiscoveryMode
           ? discoveryResponse
           : searchResponse
       )
@@ -68,8 +69,8 @@ export function HomePage(sources) {
       });
 
   const vdom$ =
-    xs.combine(searchBarVdom$, searchPhrase$, resultsVdom$)
-      .map(([searchBarVdom, searchPhrase, resultsVdom]) =>
+    xs.combine(searchBarVdom$, isDiscoveryMode$, searchPhrase$, resultsVdom$)
+      .map(([searchBarVdom, isDiscoveryMode, searchPhrase, resultsVdom]) =>
         <div className="HomePage">
           <h1>TMDb UI – Home</h1>
           <legend className="uk-legend">Search for a Title:</legend>
@@ -77,7 +78,7 @@ export function HomePage(sources) {
           {searchBarVdom}
 
           <h3 className="uk-heading-bullet uk-margin-remove-top">
-            {discoveryModePredicate(searchPhrase)
+            {isDiscoveryMode
               ? 'Popular Now'
               : `Search Results for "${searchPhrase}":`}
           </h3>
